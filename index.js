@@ -1,22 +1,18 @@
-function defaultUnknownHandler(name, /* , val */) {
-	throw new Error(`Unknown or unexpected option: ${name}`);
-}
+function zarg(argv, opts) {
+	const result = {_: []};
 
-function zarg(argv, opts, unknownHandler) {
-	if (!Array.isArray(argv)) {
-		unknownHandler = opts;
-		opts = argv;
-		argv = null;
+	/* eslint-disable default-case */
+	switch (arguments.length) {
+		case 0:
+			return result;
+		case 1:
+			opts = argv;
+			argv = null;
+			break;
 	}
-
-	if (typeof opts === 'function') {
-		unknownHandler = opts;
-		opts = null;
-	}
+	/* eslint-enable default-case */
 
 	argv = argv || process.argv.slice(2);
-	opts = opts || {};
-	unknownHandler = unknownHandler || defaultUnknownHandler;
 
 	const aliases = {};
 	const handlers = {};
@@ -35,8 +31,6 @@ function zarg(argv, opts, unknownHandler) {
 
 		handlers[key] = type;
 	}
-
-	const result = {_: []};
 
 	for (let i = 0, len = argv.length; i < len; i++) {
 		const arg = argv[i];
@@ -60,8 +54,7 @@ function zarg(argv, opts, unknownHandler) {
 			}
 
 			if (!(argName in handlers)) {
-				unknownHandler(argName, argStr);
-				continue;
+				throw new Error(`Unknown or unexpected option: ${originalArgName}`);
 			}
 
 			/* eslint-disable operator-linebreak */

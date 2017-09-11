@@ -5,8 +5,8 @@ const expect = require('chai').expect;
 const zarg = require('.');
 
 test('basic parses arguments from process.argv', () => {
-	const curArgs = process.argv.slice(0);
-	process.argv.splice(2, 1000, '--foo', '1337', '-B', 'hello', '--mcgee');
+	const curArgs = process.argv;
+	process.argv = ['node', 'test.js', '--foo', '1337', '-B', 'hello', '--mcgee'];
 	try {
 		const args = zarg({
 			'--foo': Number,
@@ -20,143 +20,64 @@ test('basic parses arguments from process.argv', () => {
 		expect(args['--bar']).to.equal('hello');
 		expect(args['--mcgee']).to.equal(true);
 	} finally {
-		process.argv.splice(0, 1000, ...curArgs);
+		process.argv = curArgs;
 	}
+});
+
+test('zarg with no arguments', () => {
+	expect(zarg()).to.deep.equal({_: []});
 });
 
 test('basic extra arguments parsing', () => {
 	const argv = ['hi', 'hello', 'there', '-'];
-
-	const forms = [
-		zarg(argv),
-		zarg(argv, {}),
-		zarg(argv, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: argv});
-	}
+	expect(zarg(argv, {})).to.deep.equal({_: argv});
 });
 
 test('basic string parsing', () => {
 	const argv = ['hey', '--foo', 'hi', 'hello'];
-
-	const forms = [
-		zarg(argv, {'--foo': String}),
-		zarg(argv, {'--foo': String}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', 'hello'], '--foo': 'hi'});
-	}
+	expect(zarg(argv, {'--foo': String})).to.deep.equal({_: ['hey', 'hello'], '--foo': 'hi'});
 });
 
 test('basic string parsing (equals long-arg)', () => {
 	const argv = ['hey', '--foo=hi', 'hello'];
-
-	const forms = [
-		zarg(argv, {'--foo': String}),
-		zarg(argv, {'--foo': String}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', 'hello'], '--foo': 'hi'});
-	}
+	expect(zarg(argv, {'--foo': String})).to.deep.equal({_: ['hey', 'hello'], '--foo': 'hi'});
 });
 
 test('basic number parsing', () => {
 	const argv = ['hey', '--foo', '1234', 'hello'];
-
-	const forms = [
-		zarg(argv, {'--foo': Number}),
-		zarg(argv, {'--foo': Number}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', 'hello'], '--foo': 1234});
-	}
+	expect(zarg(argv, {'--foo': Number})).to.deep.equal({_: ['hey', 'hello'], '--foo': 1234});
 });
 
 test('basic boolean parsing', () => {
 	const argv = ['hey', '--foo', '1234', 'hello'];
-
-	const forms = [
-		zarg(argv, {'--foo': Boolean}),
-		zarg(argv, {'--foo': Boolean}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', '1234', 'hello'], '--foo': true});
-	}
+	expect(zarg(argv, {'--foo': Boolean})).to.deep.equal({_: ['hey', '1234', 'hello'], '--foo': true});
 });
 
 test('basic custom type parsing', () => {
 	const argv = ['hey', '--foo', '1234', 'hello'];
-
 	const customType = (val, name) => `:${name}:${val}:`;
-
-	const forms = [
-		zarg(argv, {'--foo': customType}),
-		zarg(argv, {'--foo': customType}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', 'hello'], '--foo': ':--foo:1234:'});
-	}
+	expect(zarg(argv, {'--foo': customType})).to.deep.equal({_: ['hey', 'hello'], '--foo': ':--foo:1234:'});
 });
 
 test('basic string parsing (array)', () => {
 	const argv = ['hey', '--foo', 'hi', 'hello', '--foo', 'hey'];
-
-	const forms = [
-		zarg(argv, {'--foo': [String]}),
-		zarg(argv, {'--foo': [String]}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', 'hello'], '--foo': ['hi', 'hey']});
-	}
+	expect(zarg(argv, {'--foo': [String]})).to.deep.equal({_: ['hey', 'hello'], '--foo': ['hi', 'hey']});
 });
 
 test('basic number parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', '5432'];
-
-	const forms = [
-		zarg(argv, {'--foo': [Number]}),
-		zarg(argv, {'--foo': [Number]}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', 'hello'], '--foo': [1234, 5432]});
-	}
+	expect(zarg(argv, {'--foo': [Number]})).to.deep.equal({_: ['hey', 'hello'], '--foo': [1234, 5432]});
 });
 
 test('basic boolean parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', 'hallo'];
-
-	const forms = [
-		zarg(argv, {'--foo': [Boolean]}),
-		zarg(argv, {'--foo': [Boolean]}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', '1234', 'hello', 'hallo'], '--foo': [true, true]});
-	}
+	expect(zarg(argv, {'--foo': [Boolean]})).to.deep.equal({_: ['hey', '1234', 'hello', 'hallo'], '--foo': [true, true]});
 });
 
 test('basic custom type parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', '8911hi'];
-
 	const customType = (val, name) => `:${name}:${val}:`;
-
-	const forms = [
-		zarg(argv, {'--foo': [customType]}),
-		zarg(argv, {'--foo': [customType]}, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({_: ['hey', 'hello'], '--foo': [':--foo:1234:', ':--foo:8911hi:']});
-	}
+	expect(zarg(argv, {'--foo': [customType]})).to.deep.equal({_: ['hey', 'hello'], '--foo': [':--foo:1234:', ':--foo:8911hi:']});
 });
 
 test('basic alias parsing', () => {
@@ -171,19 +92,12 @@ test('basic alias parsing', () => {
 		'-B': '--bar'
 	};
 
-	const forms = [
-		zarg(argv, opts),
-		zarg(argv, opts, () => {})
-	];
-
-	for (const args of forms) {
-		expect(args).to.deep.equal({
-			_: ['hello', 'ohai'],
-			'--foo': 1234,
-			'--bar': '-',
-			'--another-arg': true
-		});
-	}
+	expect(zarg(argv, opts)).to.deep.equal({
+		_: ['hello', 'ohai'],
+		'--foo': 1234,
+		'--bar': '-',
+		'--another-arg': true
+	});
 });
 
 test('double-dash parsing', () => {
@@ -194,11 +108,6 @@ test('double-dash parsing', () => {
 test('error: invalid option', () => {
 	const argv = ['--foo', '1234', '--bar', '8765'];
 	expect(() => zarg(argv, {'--foo': Number})).to.throw('Unknown or unexpected option: --bar');
-});
-
-test('error: invalid option (custom handler)', () => {
-	const argv = ['--foo', '1234', '--bar', '8765'];
-	expect(zarg(argv, {'--foo': Number}, () => null)).to.deep.equal({_: ['8765'], '--foo': 1234});
 });
 
 test('error: expected argument', () => {
