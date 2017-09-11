@@ -18,31 +18,22 @@ function zarg(argv, opts, unknownHandler) {
 	opts = opts || {};
 	unknownHandler = unknownHandler || defaultUnknownHandler;
 
+	const aliases = {};
 	const handlers = {};
-	const setType = (name, type, dest) => {
-		if (name in handlers) {
-			const odest = handlers[name][1];
-			const extended = `--${dest}` === name ? '' : `alias for --${dest}, `;
-			throw new Error(`Duplicate option configuration: ${name} (${extended}originally for --${odest})`);
-		}
-
-		handlers[name] = [type, dest];
-	};
 
 	for (const key of Object.keys(opts)) {
-		const [type, aliases] = Array.isArray(opts[key]) ? [opts[key][0], opts[key].slice(1)] : [opts[key], []];
-
-		const name = `--${key}`;
-
-		if (!type || typeof type !== 'function') {
-			throw new Error(`Type missing or not a function: ${name}`);
+		if (typeof opts[key] === 'string') {
+			aliases[key] = opts[key];
+			continue;
 		}
 
-		setType(name, type, key);
+		const type = opts[key];
 
-		for (const alias of aliases) {
-			setType(alias, type, key);
+		if (!type || (typeof type !== 'function' && !(Array.isArray(type) && type.length === 1 && typeof type[0] === 'function'))) {
+			throw new Error(`Type missing or not a function or valid array type: ${key}`);
 		}
+
+		handlers[key] = type;
 	}
 
 	const result = {_: []};
@@ -61,27 +52,47 @@ function zarg(argv, opts, unknownHandler) {
 		}
 
 		if (arg[0] === '-') {
-			const [argName, argStr] = arg[1] === '-' ? arg.split('=', 2) : [arg, undefined];
+			const [originalArgName, argStr] = arg[1] === '-' ? arg.split('=', 2) : [arg, undefined];
+
+			let argName = originalArgName;
+			while (argName in aliases) {
+				argName = aliases[argName];
+			}
 
 			if (!(argName in handlers)) {
 				unknownHandler(argName, argStr);
 				continue;
 			}
 
-			const [type, dest] = handlers[argName];
+			/* eslint-disable operator-linebreak */
+			const [type, isArray] = Array.isArray(handlers[argName])
+				? [handlers[argName][0], true]
+				: [handlers[argName], false];
+			/* eslint-enable operator-linebreak */
 
+			let value;
 			if (type === Boolean) {
-				result[dest] = true;
+				value = true;
 			} else if (argStr === undefined) {
 				if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
-					const extended = `--${dest}` === argName ? '' : ` (alias for --${dest})`;
-					throw new Error(`Option requires argument: ${argName}${extended}`);
+					const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
+					throw new Error(`Option requires argument: ${originalArgName}${extended}`);
 				}
 
-				result[dest] = type(argv[i + 1], argName, result[dest]);
+				value = type(argv[i + 1], argName, result[argName]);
 				++i;
 			} else {
-				result[dest] = type(argStr, argName, result[dest]);
+				value = type(argStr, argName, result[argName]);
+			}
+
+			if (isArray) {
+				if (result[argName]) {
+					result[argName].push(value);
+				} else {
+					result[argName] = [value];
+				}
+			} else {
+				result[argName] = value;
 			}
 		} else {
 			result._.push(arg);
