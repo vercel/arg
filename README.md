@@ -18,11 +18,10 @@ $ npm install zarg
 
 ## Usage
 
-`zarg()` takes 1-3 arguments:
+`zarg()` takes 1 or 2 arguments:
 
 1. An array of CLI arguments (_Optional_, defaults to `process.argv.slice(2)`)
 2. Options argument (see below)
-3. Function to call for unknown options (_Optional_, raises a descriptive error by default)
 
 It returns an object with any values present on the command-line (missing options are thus
 missing from the resulting object). Zarg performs no validation/requirement checking - we
@@ -35,42 +34,56 @@ in which case an empty array is returned).
 ```javascript
 const zarg = require('zarg');
 
-const args = zarg([argument_array,] options [, unknown_callback_fn]);
+const args = zarg([argument_array,] options);
 ```
 
 For example:
 
+```console
+$ node ./hello.js --port=1234 -n 'My name' foo bar --tag qux --tag=qix -- --foobar
+```
+
 ```javascript
-// node ./hello.js --port=1234 -n 'My name' foo bar
+// hello.js
 const zarg = require('zarg');
 
 const args = zarg({
-	help:    Boolean,                      // --help
-	version: [Boolean, '-v'],              // --version or -v
-	port:    Number,                       // --port <number> or --port=<number>
-	name:    [String, '-n', '--label']     // --name <string>, --name=<string>, -n <string>,
-	                                       //     --label <string>, or --label=<string>
+	// Types
+	'--help':    Boolean,
+	'--version': Boolean,
+	'--port':    Number,      // --port <number> or --port=<number>
+	'--name':    String,      // --name <string> or --name=<string>
+	'--tag':     [String],    // --tag <string> or --tag=<string>
+
+	// Aliases
+	'-v':        '--version',
+	'-n':        '--name',    // -n <string>; result is stored in --name
+	'--label':   '--name'     // --label <string> or --label=<string>;
+	                          //     result is stored in --name
 });
 
 console.log(args);
 /*
 {
-	_: ["foo", "bar"],
-	port: 1234,
-	name: "My name"
+	_: ["foo", "bar", "--foobar"],
+	'--port': 1234,
+	'--name': "My name",
+	'--tag': ["qux", "qix"]
 }
 */
 ```
 
-The options object defaults to having its keys as long arguments.
-
-The values for each key=&gt;value pair is either a type function or an array.
+The values for each key=&gt;value pair is either a type (function or [function]) or a string (indicating an alias).
 
 - In the case of a function, the string value of the argument's value is passed to it,
   and the return value is used as the ultimate value.
 
-- In the case of an array, the first element _must_ be a type function,
-  and any subsequent strings are used as aliases.
+- In the case of an array, the only element _must_ be a type function. Array types indicate
+  that the argument may be passed multiple times, and as such the resulting value in the returned
+  object is an array with all of the values that were passed using the specified flag.
+
+- In the case of a string, an alias is established. If a flag is passed that matches the _key_,
+  then the _value_ is substituted in its place.
 
 Type functions are passed three arguments:
 
@@ -79,20 +92,6 @@ Type functions are passed three arguments:
 3. The previous value for the destination (useful for reduce-like operatons or for supporting `-v` multiple times, etc.)
 
 This means the built-in `String`, `Number`, and `Boolean` type constructors "just work" as type functions.
-
-If a parameter is present in the argument array but isn't configured in the options object,
-the function supplied in the third argument (if present) is called with two arguments:
-
-1. The name of the option that was unknown
-2. The argument value (only if the option was formatted as `--long-name=something`)
-
-For example, this is the default unknown handler:
-
-```javascript
-function defaultUnknownHandler(name, /* , val */) {
-	throw new Error(`Unknown or unexpected option: ${name}`);
-}
-```
 
 # License
 
