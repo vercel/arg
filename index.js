@@ -1,4 +1,4 @@
-function zarg(argv, opts) {
+function arg(argv, opts) {
 	const result = {_: []};
 
 	/* eslint-disable default-case */
@@ -95,4 +95,4 @@ function zarg(argv, opts) {
 	return result;
 }
 
-module.exports = zarg;
+module.exports = arg;

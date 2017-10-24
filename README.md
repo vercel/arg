@@ -1,30 +1,30 @@
-# Zarg
+# Arg
 
-Zarg is yet another command line option parser.
+`arg` is yet another command line option parser.
 
 ## Installation
 
 Use Yarn or NPM to install.
 
 ```console
-$ yarn add zarg
+$ yarn add arg
 ```
 
 or
 
 ```console
-$ npm install zarg
+$ npm install arg
 ```
 
 ## Usage
 
-`zarg()` takes 1 or 2 arguments:
+`arg()` takes 1 or 2 arguments:
 
 1. An array of CLI arguments (_Optional_, defaults to `process.argv.slice(2)`)
 2. Options argument (see below)
 
 It returns an object with any values present on the command-line (missing options are thus
-missing from the resulting object). Zarg performs no validation/requirement checking - we
+missing from the resulting object). Arg performs no validation/requirement checking - we
 leave that up to the application.
 
 All parameters that aren't consumed by options (commonly referred to as "extra" parameters)
@@ -32,9 +32,9 @@ are added to `result._`, which is _always_ an array (even if no extra parameters
 in which case an empty array is returned).
 
 ```javascript
-const zarg = require('zarg');
+const arg = require('arg');
 
-const args = zarg([argument_array,] options);
+const args = arg([argument_array,] options);
 ```
 
 For example:
@@ -45,9 +45,9 @@ $ node ./hello.js --port=1234 -n 'My name' foo bar --tag qux --tag=qix -- --foob
 
 ```javascript
 // hello.js
-const zarg = require('zarg');
+const arg = require('arg');
 
-const args = zarg({
+const args = arg({
 	// Types
 	'--help':    Boolean,
 	'--version': Boolean,

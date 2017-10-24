@@ -1,9 +1,9 @@
 {
-    "name": "zarg",
+    "name": "@zeit/arg",
     "version": "0.2.0",
     "description": "Another simple argument parser",
     "main": "index.js",
-    "repository": "zeit/zarg",
+    "repository": "zeit/arg",
     "author": "Josh Junon <junon@zeit.co>",
     "license": "MIT",
     "scripts": {
