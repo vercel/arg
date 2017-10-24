@@ -1,6 +1,6 @@
 {
     "name": "@zeit/arg",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "description": "Another simple argument parser",
     "main": "index.js",
     "repository": "zeit/arg",
