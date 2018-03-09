@@ -34,7 +34,8 @@ in which case an empty array is returned).
 ```javascript
 const arg = require('arg');
 
-const args = arg([argument_array], options);
+// `argument_array` is an optional parameter
+const args = arg([argument_array,] options);
 ```
 
 For example:
