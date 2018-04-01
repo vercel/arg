@@ -1,16 +1,9 @@
-function arg(argv, opts) {
-	const result = {_: []};
-
-	/* eslint-disable default-case */
-	switch (arguments.length) {
-		case 0:
-			return result;
-		case 1:
-			opts = argv;
-			argv = null;
-			break;
+function arg(opts, {argv, permissive = false} = {}) {
+	if (!opts) {
+		throw new Error('Argument specification must be specified');
 	}
-	/* eslint-enable default-case */
+
+	const result = {_: []};
 
 	argv = argv || process.argv.slice(2);
 
@@ -54,7 +47,12 @@ function arg(argv, opts) {
 			}
 
 			if (!(argName in handlers)) {
-				throw new Error(`Unknown or unexpected option: ${originalArgName}`);
+				if (permissive) {
+					result._.push(arg);
+					continue;
+				} else {
+					throw new Error(`Unknown or unexpected option: ${originalArgName}`);
+				}
 			}
 
 			/* eslint-disable operator-linebreak */
