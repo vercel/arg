@@ -18,10 +18,10 @@ $ npm install arg
 
 ## Usage
 
-`arg()` takes 1 or 2 arguments:
+`arg()` takes either 1 or 2 arguments:
 
-1. An array of CLI arguments (_Optional_, defaults to `process.argv.slice(2)`)
-2. Options argument (see below)
+1. Command line specification object (see below)
+2. Parse options (_Optional_, defaults to `{permissive: false, argv: process.argv.slice(2)}`)
 
 It returns an object with any values present on the command-line (missing options are thus
 missing from the resulting object). Arg performs no validation/requirement checking - we
@@ -35,7 +35,7 @@ in which case an empty array is returned).
 const arg = require('arg');
 
 // `argument_array` is an optional parameter
-const args = arg([argument_array,] options);
+const args = arg(spec, options = {permissive: false, argv: process.argv.slice(2)}]);
 ```
 
 For example:
@@ -94,6 +94,70 @@ Type functions are passed three arguments:
 
 This means the built-in `String`, `Number`, and `Boolean` type constructors "just work" as type functions.
 
+### Options
+
+If a second parameter is specified and is an object, it specifies parsing options to modify the behavior of `arg()`.
+
+#### `argv`
+
+If you have already sliced or generated a number of raw arguments to be parsed (as opposed to letting `arg`
+slice them from `process.argv`) you may specify them in the `argv` option.
+
+For example:
+
+```javascript
+const args = arg(
+	{
+		'--foo': String
+	}, {
+		argv: ['hello', '--foo', 'world']
+	}
+);
+```
+
+results in:
+
+```javascript
+const args = {
+	_: ['hello'],
+	'--foo': 'world'
+};
+```
+
+#### `permissive`
+
+When `permissive` set to `true`, `arg` will push any unknown arguments
+onto the "extra" argument array (`result._`) instead of throwing an error about
+an unknown flag.
+
+For example:
+
+```javascript
+const arg = require('arg');
+
+const argv = ['--foo', 'hello', '--qux', 'qix', '--bar', '12345', 'hello again'];
+
+const args = arg(
+	{
+		'--foo': String,
+		'--bar': Number
+	}, {
+		argv,
+		permissive: true
+	}
+);
+```
+
+results in:
+
+```javascript
+const args = {
+	_:          ['--qux', 'qix', 'hello again'],
+	'--foo':    'hello',
+	'--bar':    12345
+}
+```
+
 # License
 
-Copyright &copy; 2017 by ZEIT, Inc. Released under the [MIT License](LICENSE.md).
+Copyright &copy; 2017-2018 by ZEIT, Inc. Released under the [MIT License](LICENSE.md).
