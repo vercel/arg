@@ -51,7 +51,9 @@ function arg(opts, {argv, permissive = false} = {}) {
 					result._.push(arg);
 					continue;
 				} else {
-					throw new Error(`Unknown or unexpected option: ${originalArgName}`);
+					const err = new Error(`Unknown or unexpected option: ${originalArgName}`);
+					err.code = 'UNKNOWN_OPTION';
+					throw err;
 				}
 			}
 
