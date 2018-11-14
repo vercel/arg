@@ -6,6 +6,7 @@
   "repository": "zeit/arg",
   "author": "Josh Junon <junon@zeit.co>",
   "license": "MIT",
+  "files": ["index.js"],
   "scripts": {
     "pretest": "xo",
     "test": "WARN_EXIT=1 jest --coverage -w 2"
