@@ -178,3 +178,13 @@ test('permissive mode works with no argv specified', () => {
 		process.argv = curArgs;
 	}
 });
+
+test('ensure that all argument properties start with a hyphen', () => {
+	expect(() =>
+		arg({
+			'--foo': Number,
+			bar: String,
+			'--baz': Boolean
+		})
+	).to.throw(TypeError, 'Argument key must start with \'-\' but found: \'bar\'');
+});
