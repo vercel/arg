@@ -1,7 +1,7 @@
 /* global test */
 /* eslint-disable no-unused-expressions */
 
-const expect = require('chai').expect;
+const {expect} = require('chai');
 const arg = require('.');
 
 test('basic parses arguments from process.argv', () => {
