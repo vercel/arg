@@ -52,7 +52,7 @@ function arg(opts, {argv, permissive = false} = {}) {
 					continue;
 				} else {
 					const err = new Error(`Unknown or unexpected option: ${originalArgName}`);
-					err.code = 'UNKNOWN_OPTION';
+					err.code = 'ARG_UNKNOWN_OPTION';
 					throw err;
 				}
 			}
