@@ -158,6 +158,30 @@ const args = {
 }
 ```
 
+#### Errors
+
+##### ARG_UNKNOWN_OPTION
+
+If an unknown option (not defined in the spec object) is passed, an error with code `ARG_UNKNOWN_OPTION` will be thrown:
+```js
+// cli.js
+try {
+  require('arg')({ '--hi': String });
+} catch (err) {
+  if (err.code === 'ARG_UNKNOWN_OPTION') {
+    console.log(err.message);
+  } else {
+    throw err;
+  }
+}
+```
+
+```shell
+node cli.js --extraneous true
+Unknown or unexpected option: --extraneous
+```
+
+
 # License
 
 Copyright &copy; 2017-2018 by ZEIT, Inc. Released under the [MIT License](LICENSE.md).
