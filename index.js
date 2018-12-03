@@ -11,6 +11,10 @@ function arg(opts, {argv, permissive = false} = {}) {
 	const handlers = {};
 
 	for (const key of Object.keys(opts)) {
+		if (key[0] !== '-') {
+			throw new TypeError(`Argument key must start with '-' but found: '${key}'`);
+		}
+
 		if (typeof opts[key] === 'string') {
 			aliases[key] = opts[key];
 			continue;
