@@ -175,10 +175,11 @@ try {
   }
 }
 ```
+
 ```shell
 node cli.js --extraneous true
 Unknown or unexpected option: --extraneous
-
+```
 
 
 # License
