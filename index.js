@@ -55,7 +55,20 @@ function arg(opts, {argv, permissive = false} = {}) {
 			}
 
 			if (!(argName in handlers)) {
-				if (permissive) {
+				// Handle repeating boolean flags
+				const shortArg = argName.substring(0, 2);
+				const rest = argName.substring(2);
+				if (shortArg in handlers &&
+					Array.isArray(handlers[shortArg]) &&
+					rest.length > 0 &&
+					rest === argName.substring(1, 2).repeat(rest.length)
+				) {
+					argName = shortArg;
+					result[argName] = result[argName] ?
+						result[argName] += rest.length + 1 :
+						result[argName] = rest.length + 1;
+					continue;
+				} else if (permissive) {
 					result._.push(arg);
 					continue;
 				} else {
@@ -63,15 +76,20 @@ function arg(opts, {argv, permissive = false} = {}) {
 				}
 			}
 
-			/* eslint-disable operator-linebreak */
-			const [type, isArray] = Array.isArray(handlers[argName])
-				? [handlers[argName][0], true]
-				: [handlers[argName], false];
-			/* eslint-enable operator-linebreak */
+			const [type, isArray] = Array.isArray(handlers[argName]) ?
+				[handlers[argName][0], true] :
+				[handlers[argName], false];
 
 			let value;
 			if (type === Boolean) {
-				value = true;
+				if (isArray) {
+					result[argName] = result[argName] ?
+						result[argName] += 1 :
+						result[argName] = 1;
+					continue;
+				} else {
+					value = true;
+				}
 			} else if (argStr === undefined) {
 				if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
 					const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
