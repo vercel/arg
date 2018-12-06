@@ -26,6 +26,10 @@ function arg(opts, {argv, permissive = false} = {}) {
 			throw new Error(`Type missing or not a function or valid array type: ${key}`);
 		}
 
+		if (key.substring(0, 2) !== '--' && key.length !== 2) {
+			throw new Error(`Single-hyphen properties must be one character: ${key}`);
+		}
+
 		handlers[key] = type;
 	}
 
