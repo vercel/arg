@@ -65,8 +65,8 @@ function arg(opts, {argv, permissive = false} = {}) {
 				) {
 					argName = shortArg;
 					result[argName] = result[argName] ?
-						result[argName] += rest.length + 1 :
-						result[argName] = rest.length + 1;
+						result[argName] + rest.length + 1 :
+						rest.length + 1;
 					continue;
 				} else if (permissive) {
 					result._.push(arg);
@@ -86,8 +86,8 @@ function arg(opts, {argv, permissive = false} = {}) {
 			if (type === Boolean) {
 				if (isArray) {
 					result[argName] = result[argName] ?
-						result[argName] += 1 :
-						result[argName] = 1;
+						result[argName] + 1 :
+						1;
 					continue;
 				} else {
 					value = true;
