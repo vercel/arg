@@ -3,11 +3,13 @@
   "version": "2.0.1",
   "description": "Another simple argument parser",
   "main": "index.js",
+  "types": "index.d.ts",
   "repository": "zeit/arg",
   "author": "Josh Junon <junon@zeit.co>",
   "license": "MIT",
   "files": [
-    "index.js"
+    "index.js",
+    "index.d.ts"
   ],
   "scripts": {
     "pretest": "xo",
