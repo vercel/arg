@@ -22,8 +22,8 @@ function arg(opts, {argv, permissive = false} = {}) {
 
 		const type = opts[key];
 
-		if (!type || (typeof type !== 'function' && !(Array.isArray(type) && type.length === 1 && typeof type[0] === 'function'))) {
-			throw new Error(`Type missing or not a function or valid array type: ${key}`);
+		if (typeof type !== 'function') {
+			throw new TypeError(`Type is not a function: ${key}`);
 		}
 
 		handlers[key] = type;
@@ -61,13 +61,9 @@ function arg(opts, {argv, permissive = false} = {}) {
 				}
 			}
 
-			/* eslint-disable operator-linebreak */
-			const [type, isArray] = Array.isArray(handlers[argName])
-				? [handlers[argName][0], true]
-				: [handlers[argName], false];
-			/* eslint-enable operator-linebreak */
-
+			const type = handlers[argName];
 			let value;
+
 			if (type === Boolean) {
 				value = true;
 			} else if (argStr === undefined) {
@@ -82,15 +78,7 @@ function arg(opts, {argv, permissive = false} = {}) {
 				value = type(argStr, argName, result[argName]);
 			}
 
-			if (isArray) {
-				if (result[argName]) {
-					result[argName].push(value);
-				} else {
-					result[argName] = [value];
-				}
-			} else {
-				result[argName] = value;
-			}
+			result[argName] = value;
 		} else {
 			result._.push(arg);
 		}
@@ -98,5 +86,9 @@ function arg(opts, {argv, permissive = false} = {}) {
 
 	return result;
 }
+
+arg.of = fn => (value, argName, prev = []) => {
+	return prev.concat(fn(value, argName, prev[prev.length - 1]));
+};
 
 module.exports = arg;

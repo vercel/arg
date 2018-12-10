@@ -61,23 +61,23 @@ test('basic custom type parsing', () => {
 
 test('basic string parsing (array)', () => {
 	const argv = ['hey', '--foo', 'hi', 'hello', '--foo', 'hey'];
-	expect(arg({'--foo': [String]}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': ['hi', 'hey']});
+	expect(arg({'--foo': arg.of(String)}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': ['hi', 'hey']});
 });
 
 test('basic number parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', '5432'];
-	expect(arg({'--foo': [Number]}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': [1234, 5432]});
+	expect(arg({'--foo': arg.of(Number)}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': [1234, 5432]});
 });
 
 test('basic boolean parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', 'hallo'];
-	expect(arg({'--foo': [Boolean]}, {argv})).to.deep.equal({_: ['hey', '1234', 'hello', 'hallo'], '--foo': [true, true]});
+	expect(arg({'--foo': arg.of(Boolean)}, {argv})).to.deep.equal({_: ['hey', '1234', 'hello', 'hallo'], '--foo': [true, true]});
 });
 
 test('basic custom type parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', '8911hi'];
 	const customType = (val, name) => `:${name}:${val}:`;
-	expect(arg({'--foo': [customType]}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': [':--foo:1234:', ':--foo:8911hi:']});
+	expect(arg({'--foo': arg.of(customType)}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': [':--foo:1234:', ':--foo:8911hi:']});
 });
 
 test('basic alias parsing', () => {
