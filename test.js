@@ -71,7 +71,7 @@ test('basic number parsing (array)', () => {
 
 test('basic boolean parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', 'hallo'];
-	expect(arg({'--foo': [Boolean]}, {argv})).to.deep.equal({_: ['hey', '1234', 'hello', 'hallo'], '--foo': 2});
+	expect(arg({'--foo': [Boolean]}, {argv})).to.deep.equal({_: ['hey', '1234', 'hello', 'hallo'], '--foo': [true, true]});
 });
 
 test('basic custom type parsing (array)', () => {
@@ -189,6 +189,11 @@ test('ensure that all argument properties start with a hyphen', () => {
 	).to.throw(TypeError, 'Argument key must start with \'-\' but found: \'bar\'');
 });
 
+test('single hyphen cannot be key', () => {
+	const argv = ['--foo', '-'];
+	expect(() => (arg({'--foo': Boolean, '-': Boolean}, {argv})).to.throw('Argument key must have a name; singular "-" keys are not allowed: -'));
+});
+
 test('ensure single-hyphen properties are one character', () => {
 	const argv = ['-vv', '--foo'];
 	expect(() => (arg({'-vv': Boolean}, {argv, permissive: true})).to.throw('Single-hyphen properties must be one character: -vv'));
@@ -196,5 +201,5 @@ test('ensure single-hyphen properties are one character', () => {
 
 test('correctly parse repeating boolean flags', () => {
 	const argv = ['-vvvv', '-v', '--foo', '--foo'];
-	expect(arg({'-v': [Boolean], '--foo': Boolean}, {argv, permissive: true})).to.deep.equal({_: [], '-v': 5, '--foo': true});
+	expect(arg({'-v': [Boolean], '--foo': Boolean}, {argv, permissive: true})).to.deep.equal({_: [], '-v': [true, true, true, true, true], '--foo': true});
 });

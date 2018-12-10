@@ -15,6 +15,10 @@ function arg(opts, {argv, permissive = false} = {}) {
 			throw new TypeError(`Argument key must start with '-' but found: '${key}'`);
 		}
 
+		if (key.length === 1) {
+			throw new Error(`Argument key must have a name; singular "-" keys are not allowed: ${key}`);
+		}
+
 		if (typeof opts[key] === 'string') {
 			aliases[key] = opts[key];
 			continue;
@@ -26,8 +30,8 @@ function arg(opts, {argv, permissive = false} = {}) {
 			throw new Error(`Type missing or not a function or valid array type: ${key}`);
 		}
 
-		if (key.substring(0, 2) !== '--' && key.length !== 2) {
-			throw new Error(`Single-hyphen properties must be one character: ${key}`);
+		if (key[1] !== '-' && key.length > 2) {
+			throw new Error(`Short argument keys (with a single hyphen) must have only one character: ${key}`);
 		}
 
 		handlers[key] = type;
@@ -64,9 +68,12 @@ function arg(opts, {argv, permissive = false} = {}) {
 					rest === argName.substring(1, 2).repeat(rest.length)
 				) {
 					argName = shortArg;
-					result[argName] = result[argName] ?
-						result[argName] + rest.length + 1 :
-						rest.length + 1;
+
+					if (!result[argName]) {
+						result[argName] = [];
+					}
+
+					result[argName].push(...Array(rest.length + 1).fill(true));
 					continue;
 				} else if (permissive) {
 					result._.push(arg);
@@ -84,14 +91,7 @@ function arg(opts, {argv, permissive = false} = {}) {
 
 			let value;
 			if (type === Boolean) {
-				if (isArray) {
-					result[argName] = result[argName] ?
-						result[argName] + 1 :
-						1;
-					continue;
-				} else {
-					value = true;
-				}
+				value = true;
 			} else if (argStr === undefined) {
 				if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
 					const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
