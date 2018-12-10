@@ -68,8 +68,8 @@ function arg(opts, {argv, permissive = false} = {}) {
 			/* eslint-enable operator-linebreak */
 
 			let value;
-			if (type === Boolean) {
-				value = true;
+			if (type === FLAG) {
+				value = type(undefined, argName, result[argName]);
 			} else if (argStr === undefined) {
 				if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
 					const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
@@ -99,4 +99,9 @@ function arg(opts, {argv, permissive = false} = {}) {
 	return result;
 }
 
+function FLAG(_value, _argName, prev = 0) {
+	return prev + 1;
+}
+
 module.exports = arg;
+module.exports.FLAG = FLAG;

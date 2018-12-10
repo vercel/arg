@@ -11,14 +11,14 @@ test('basic parses arguments from process.argv', () => {
 		const args = arg({
 			'--foo': Number,
 			'--bar': String,
-			'--mcgee': Boolean,
+			'--mcgee': arg.FLAG,
 			'-B': '--bar'
 		});
 
 		expect(args).to.exist;
 		expect(args['--foo']).to.equal(1337);
 		expect(args['--bar']).to.equal('hello');
-		expect(args['--mcgee']).to.equal(true);
+		expect(args['--mcgee']).to.equal(1);
 	} finally {
 		process.argv = curArgs;
 	}
@@ -49,8 +49,13 @@ test('basic number parsing', () => {
 });
 
 test('basic boolean parsing', () => {
-	const argv = ['hey', '--foo', '1234', 'hello'];
+	const argv = ['hey', '--foo', 'x', '1234', 'hello'];
 	expect(arg({'--foo': Boolean}, {argv})).to.deep.equal({_: ['hey', '1234', 'hello'], '--foo': true});
+});
+
+test('basic count parsing', () => {
+	const argv = ['hey', '--foo', '--foo'];
+	expect(arg({'--foo': arg.FLAG}, {argv})).to.deep.equal({_: ['hey'], '--foo': 2});
 });
 
 test('basic custom type parsing', () => {
@@ -70,7 +75,7 @@ test('basic number parsing (array)', () => {
 });
 
 test('basic boolean parsing (array)', () => {
-	const argv = ['hey', '--foo', '1234', 'hello', '--foo', 'hallo'];
+	const argv = ['hey', '--foo', '1', '1234', 'hello', '--foo', '1', 'hallo'];
 	expect(arg({'--foo': [Boolean]}, {argv})).to.deep.equal({_: ['hey', '1234', 'hello', 'hallo'], '--foo': [true, true]});
 });
 
@@ -86,7 +91,7 @@ test('basic alias parsing', () => {
 	const opts = {
 		'--foo': Number,
 		'--bar': String,
-		'--another-arg': Boolean,
+		'--another-arg': arg.FLAG,
 		'-a': '--another-arg',
 		'--not-foo-or-bar': '--another-arg',
 		'-B': '--bar'
@@ -96,7 +101,7 @@ test('basic alias parsing', () => {
 		_: ['hello', 'ohai'],
 		'--foo': 1234,
 		'--bar': '-',
-		'--another-arg': true
+		'--another-arg': 1
 	});
 });
 
@@ -117,7 +122,7 @@ test('error: expected argument', () => {
 
 test('error: expected argument (end flag)', () => {
 	const argv = ['--foo', '--bar'];
-	expect(() => arg({'--foo': Boolean, '--bar': Number}, {argv})).to.throw('Option requires argument: --bar');
+	expect(() => arg({'--foo': arg.FLAG, '--bar': Number}, {argv})).to.throw('Option requires argument: --bar');
 });
 
 test('error: expected argument (alias)', () => {
@@ -127,7 +132,7 @@ test('error: expected argument (alias)', () => {
 
 test('error: expected argument (end flag) (alias)', () => {
 	const argv = ['--foo', '--bar'];
-	expect(() => arg({'--foo': Boolean, '--realbar': Number, '--bar': '--realbar'}, {argv})).to.throw('Option requires argument: --bar (alias for --realbar)');
+	expect(() => arg({'--foo': arg.FLAG, '--realbar': Number, '--bar': '--realbar'}, {argv})).to.throw('Option requires argument: --bar (alias for --realbar)');
 });
 
 test('error: non-function type', () => {
@@ -163,8 +168,8 @@ test('permissive mode works with no argv specified', () => {
 	try {
 		const result = arg({
 			'--foo': Number,
-			'--mcgee': Boolean,
-			'--unused': Boolean
+			'--mcgee': arg.FLAG,
+			'--unused': arg.FLAG
 		}, {
 			permissive: true
 		});
@@ -172,7 +177,7 @@ test('permissive mode works with no argv specified', () => {
 		expect(result).to.deep.equal({
 			_: ['-B', 'hello'],
 			'--foo': 1337,
-			'--mcgee': true
+			'--mcgee': 1
 		});
 	} finally {
 		process.argv = curArgs;
