@@ -16,7 +16,7 @@ function arg(opts, {argv, permissive = false} = {}) {
 		}
 
 		if (key.length === 1) {
-			throw new Error(`Argument key must have a name; singular "-" keys are not allowed: ${key}`);
+			throw new TypeError(`Argument key must have a name; singular "-" keys are not allowed: ${key}`);
 		}
 
 		if (typeof opts[key] === 'string') {
@@ -27,11 +27,11 @@ function arg(opts, {argv, permissive = false} = {}) {
 		const type = opts[key];
 
 		if (!type || (typeof type !== 'function' && !(Array.isArray(type) && type.length === 1 && typeof type[0] === 'function'))) {
-			throw new Error(`Type missing or not a function or valid array type: ${key}`);
+			throw new TypeError(`Type missing or not a function or valid array type: ${key}`);
 		}
 
 		if (key[1] !== '-' && key.length > 2) {
-			throw new Error(`Short argument keys (with a single hyphen) must have only one character: ${key}`);
+			throw new TypeError(`Short argument keys (with a single hyphen) must have only one character: ${key}`);
 		}
 
 		handlers[key] = type;
@@ -66,7 +66,9 @@ function arg(opts, {argv, permissive = false} = {}) {
 						if (`-${char}` in handlers) {
 							argv.push(`-${char}`);
 						} else {
-							throw new Error(`Unkown or unexpected option: -${char}`);
+							const err = new Error(`Unknown or unexpected option: -${char}`);
+							err.code = 'ARG_UNKNOWN_OPTION';
+							throw err;
 						}
 					}
 
@@ -75,7 +77,9 @@ function arg(opts, {argv, permissive = false} = {}) {
 					result._.push(arg);
 					continue;
 				} else {
-					throw new Error(`Unknown or unexpected option: ${originalArgName}`);
+					const err = new Error(`Unknown or unexpected option: ${originalArgName}`);
+					err.code = 'ARG_UNKNOWN_OPTION';
+					throw err;
 				}
 			}
 
