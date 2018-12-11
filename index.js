@@ -37,7 +37,7 @@ function arg(opts, {argv, permissive = false} = {}) {
 		handlers[key] = type;
 	}
 
-	for (let i = 0, len = argv.length; i < len; i++) {
+	for (let i = 0; i < argv.length; i++) {
 		const arg = argv[i];
 
 		if (arg.length < 2) {
@@ -59,29 +59,23 @@ function arg(opts, {argv, permissive = false} = {}) {
 			}
 
 			if (!(argName in handlers)) {
-				// Handle repeating boolean flags
 				const shortArg = argName.substring(0, 2);
-				const rest = argName.substring(2);
-				if (shortArg in handlers &&
-					Array.isArray(handlers[shortArg]) &&
-					rest.length > 0 &&
-					rest === argName.substring(1, 2).repeat(rest.length)
-				) {
-					argName = shortArg;
-
-					if (!result[argName]) {
-						result[argName] = [];
+				const flags = argName.substring(1);
+				if (shortArg in handlers && flags.length > 1) {
+					for (const char of flags) {
+						if (`-${char}` in handlers) {
+							argv.push(`-${char}`);
+						} else {
+							throw new Error(`Unkown or unexpected option: -${char}`);
+						}
 					}
 
-					result[argName].push(...Array(rest.length + 1).fill(true));
 					continue;
 				} else if (permissive) {
 					result._.push(arg);
 					continue;
 				} else {
-					const err = new Error(`Unknown or unexpected option: ${originalArgName}`);
-					err.code = 'ARG_UNKNOWN_OPTION';
-					throw err;
+					throw new Error(`Unknown or unexpected option: ${originalArgName}`);
 				}
 			}
 

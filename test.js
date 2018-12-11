@@ -203,3 +203,13 @@ test('correctly parse repeating boolean flags', () => {
 	const argv = ['-vvvv', '-v', '--foo', '--foo'];
 	expect(arg({'-v': [Boolean], '--foo': Boolean}, {argv, permissive: true})).to.deep.equal({_: [], '-v': [true, true, true, true, true], '--foo': true});
 });
+
+test('expand combined boolean flags', () => {
+	const argv = ['-abc'];
+	expect(arg({'-a': Boolean, '-b': Boolean, '-c': Boolean}, {argv})).to.deep.equal({_: [], '-a': true, '-b': true, '-c': true});
+});
+
+test('combined boolean flags with boolean arrays', () => {
+	const argv = ['-abcddd', '-d'];
+	expect(arg({'-a': Boolean, '-b': Boolean, '-c': Boolean, '-d': [Boolean]}, {argv})).to.deep.equal({_: [], '-a': true, '-b': true, '-c': true, '-d': [true, true, true, true]});
+});
