@@ -1,4 +1,4 @@
-declare function arg<T extends arg.Spec>(spec: T): arg.Result<T>;
+declare function arg<T extends arg.Spec>(spec: T, options?: {argv?: string[], permissive?: boolean}): arg.Result<T>;
 
 declare namespace arg {
 	export type Handler = (value: string) => any;
