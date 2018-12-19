@@ -137,6 +137,16 @@ test('error: non-function type', () => {
 	expect(() => arg({'--foo': undefined}, {argv})).to.throw('Type missing or not a function or valid array type: --foo');
 });
 
+test('error: no singular - keys allowed', () => {
+	const argv = ['--foo', '--bar', '1234'];
+	expect(() => arg({'-': Boolean, '--bar': Number}, {argv})).to.throw('Argument key must have a name; singular \'-\' keys are not allowed: -');
+});
+
+test('error: no multi character short arguments', () => {
+	const argv = ['--foo', '--bar', '1234'];
+	expect(() => arg({'-abc': Boolean, '--bar': Number}, {argv})).to.throw('Short argument keys (with a single hyphen) must have only one character: -abc');
+});
+
 test('permissive mode allows unknown args', () => {
 	const argv = ['foo', '--real', 'nice', '--unreal', 'stillnice', '-a', '1', '-b', '2', 'goodbye'];
 	const result = arg(

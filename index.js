@@ -15,6 +15,10 @@ function arg(opts, {argv, permissive = false} = {}) {
 			throw new TypeError(`Argument key must start with '-' but found: '${key}'`);
 		}
 
+		if (key.length === 1) {
+			throw new TypeError(`Argument key must have a name; singular '-' keys are not allowed: ${key}`);
+		}
+
 		if (typeof opts[key] === 'string') {
 			aliases[key] = opts[key];
 			continue;
@@ -24,6 +28,10 @@ function arg(opts, {argv, permissive = false} = {}) {
 
 		if (!type || (typeof type !== 'function' && !(Array.isArray(type) && type.length === 1 && typeof type[0] === 'function'))) {
 			throw new Error(`Type missing or not a function or valid array type: ${key}`);
+		}
+
+		if (key[1] !== '-' && key.length > 2) {
+			throw new TypeError(`Short argument keys (with a single hyphen) must have only one character: ${key}`);
 		}
 
 		handlers[key] = type;
