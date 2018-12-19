@@ -1,6 +1,6 @@
 function arg(opts, {argv, permissive = false} = {}) {
 	if (!opts) {
-		throw new Error('Argument specification must be specified');
+		throw new Error('Argument specification object is required');
 	}
 
 	const result = {_: []};
