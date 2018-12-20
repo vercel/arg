@@ -25,7 +25,7 @@ test('basic parses arguments from process.argv', () => {
 });
 
 test('arg with no arguments', () => {
-	expect(() => arg()).to.throw('Argument specification must be specified');
+	expect(() => arg()).to.throw('Argument specification object is required');
 });
 
 test('basic extra arguments parsing', () => {
