@@ -100,6 +100,28 @@ As well, `arg` supplies a helper argument handler called `arg.COUNT`, which equi
 property - effectively counting the number of times the boolean flag, denoted by the key, is passed on the command line..
 For example, this is how you could implement `ssh`'s multiple levels of verbosity (`-vvvv` being the most verbose).
 
+```javascript
+const arg = require('arg');
+
+const argv = ['-AAAA', '-BBBB'];
+
+const args = arg({
+	'-A': arg.COUNT,
+	'-B': [Boolean]
+}, {
+	argv
+});
+
+console.log(args);
+/*
+{
+	_: [],
+	'-A': 4,
+	'-B': [true, true, true, true]
+}
+*/
+```
+
 ### Options
 
 If a second parameter is specified and is an object, it specifies parsing options to modify the behavior of `arg()`.
