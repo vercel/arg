@@ -96,6 +96,37 @@ Type functions are passed three arguments:
 
 This means the built-in `String`, `Number`, and `Boolean` type constructors "just work" as type functions.
 
+Note that `Boolean` and `[Boolean]` have special treatment - an option argument is _not_ consumed or passed, but instead `true` is
+returned. These options are called "flags".
+
+For custom handlers that wish to behave as flags, you may pass the function through `arg.flag()`:
+
+```javascript
+const arg = require('arg');
+
+const argv = ['--foo', 'bar', '-ff', 'baz', '--foo', '--foo', 'qux', '-fff', 'qix'];
+
+function myHandler(value, argName, previousValue) {
+	/* `value` is always `true` */
+	return 'na ' + (previousValue || 'batman!');
+}
+
+const args = arg({
+	'--foo': arg.flag(myHandler),
+	'-f': '--foo'
+}, {
+	argv
+});
+
+console.log(args);
+/*
+{
+	_: ['foo', 'baz', 'qux', 'qix'],
+	'--foo': 'na na na na na na na na batman!'
+}
+*/
+```
+
 As well, `arg` supplies a helper argument handler called `arg.COUNT`, which equivalent to a `[Boolean]` argument's `.length`
 property - effectively counting the number of times the boolean flag, denoted by the key, is passed on the command line..
 For example, this is how you could implement `ssh`'s multiple levels of verbosity (`-vvvv` being the most verbose).
