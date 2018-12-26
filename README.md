@@ -41,7 +41,7 @@ const args = arg(spec, options = {permissive: false, argv: process.argv.slice(2)
 For example:
 
 ```console
-$ node ./hello.js --port=1234 -n 'My name' foo bar --tag qux --tag=qix -- --foobar
+$ node ./hello.js --verbose -vvv --port=1234 -n 'My name' foo bar --tag qux --tag=qix -- --foobar
 ```
 
 ```javascript
@@ -52,12 +52,13 @@ const args = arg({
 	// Types
 	'--help':    Boolean,
 	'--version': Boolean,
+	'--verbose': arg.COUNT,   // Counts the number of times --verbose is passed
 	'--port':    Number,      // --port <number> or --port=<number>
 	'--name':    String,      // --name <string> or --name=<string>
 	'--tag':     [String],    // --tag <string> or --tag=<string>
 
 	// Aliases
-	'-v':        '--version',
+	'-v':        '--verbose',
 	'-n':        '--name',    // -n <string>; result is stored in --name
 	'--label':   '--name'     // --label <string> or --label=<string>;
 	                          //     result is stored in --name
@@ -68,6 +69,7 @@ console.log(args);
 {
 	_: ["foo", "bar", "--foobar"],
 	'--port': 1234,
+	'--verbose': 4,
 	'--name': "My name",
 	'--tag': ["qux", "qix"]
 }
@@ -93,6 +95,10 @@ Type functions are passed three arguments:
 3. The previous value for the destination (useful for reduce-like operatons or for supporting `-v` multiple times, etc.)
 
 This means the built-in `String`, `Number`, and `Boolean` type constructors "just work" as type functions.
+
+As well, `arg` supplies a helper argument handler called `arg.COUNT`, which equivalent to a `[Boolean]` argument's `.length`
+property - effectively counting the number of times the boolean flag, denoted by the key, is passed on the command line..
+For example, this is how you could implement `ssh`'s multiple levels of verbosity (`-vvvv` being the most verbose).
 
 ### Options
 
@@ -160,6 +166,9 @@ const args = {
 
 #### Errors
 
+Some errors that `arg` throws provide a `.code` property in order to aid in recovering from user error, or to
+differentiate between user error and developer error (bug).
+
 ##### ARG_UNKNOWN_OPTION
 
 If an unknown option (not defined in the spec object) is passed, an error with code `ARG_UNKNOWN_OPTION` will be thrown:
@@ -180,7 +189,6 @@ try {
 node cli.js --extraneous true
 Unknown or unexpected option: --extraneous
 ```
-
 
 # License
 
