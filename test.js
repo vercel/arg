@@ -198,3 +198,106 @@ test('ensure that all argument properties start with a hyphen', () => {
 		})
 	).to.throw(TypeError, 'Argument key must start with \'-\' but found: \'bar\'');
 });
+
+test('types with the Flag symbol should be passed true instead of an argument', () => {
+	const argv = ['--mcgee', '--foo', 'bar', '--baz', '10', 'qix'];
+
+	const result = arg({
+		'--mcgee': Boolean,
+		'--foo': arg.flag(() => 1337),
+		'--baz': Number
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: ['bar', 'qix'],
+		'--mcgee': true,
+		'--foo': 1337,
+		'--baz': 10
+	});
+});
+
+test('COUNT should count the number of times a flag has been passed', () => {
+	const argv = ['--verbose', '-v', '--verbose', 'foo', '-vvvv', '-vv'];
+
+	const result = arg({
+		'--verbose': arg.COUNT,
+		'-v': '--verbose'
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: ['foo'],
+		'--verbose': 9
+	});
+});
+
+test('should parse combined shortarg flags', () => {
+	const argv = ['-vv', '-sd', 'foo', '-vdv'];
+
+	const result = arg({
+		'-v': [Boolean],
+		'-s': Boolean,
+		'-d': arg.COUNT
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: ['foo'],
+		'-v': [true, true, true, true],
+		'-s': true,
+		'-d': 2
+	});
+});
+
+test('should parse combined shortarg alias flags', () => {
+	const argv = ['-vv', '--verbose', '-dvd', 'foo', '--dee', '-vdv'];
+
+	const result = arg({
+		'--verbose': [Boolean],
+		'-v': '--verbose',
+		'--dee': arg.COUNT,
+		'-d': '--dee'
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: ['foo'],
+		'--verbose': [true, true, true, true, true, true],
+		'--dee': 4
+	});
+});
+
+test('should allow a non-flag shortarg to suffix a string of shortarg flags', () => {
+	const argv = ['-vvLo', 'foo'];
+
+	const result = arg({
+		'-v': arg.COUNT,
+		'-L': Boolean,
+		'-o': String
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: [],
+		'-v': 2,
+		'-L': true,
+		'-o': 'foo'
+	});
+});
+
+test('should error if a non-flag shortarg comes before a shortarg flag in a condensed shortarg argument', () => {
+	const argv = ['-vsv', 'foo'];
+
+	expect(() => arg({
+		'-v': arg.COUNT,
+		'-s': String
+	}, {
+		argv
+	})).to.throw(TypeError, 'Option requires argument (but was followed by another short argument): -s');
+});

@@ -1,3 +1,5 @@
+const flagSymbol = Symbol('arg flag');
+
 function arg(opts, {argv, permissive = false} = {}) {
 	if (!opts) {
 		throw new Error('Argument specification object is required');
@@ -38,73 +40,96 @@ function arg(opts, {argv, permissive = false} = {}) {
 	}
 
 	for (let i = 0, len = argv.length; i < len; i++) {
-		const arg = argv[i];
+		const wholeArg = argv[i];
 
-		if (arg.length < 2) {
-			result._.push(arg);
+		if (wholeArg.length < 2) {
+			result._.push(wholeArg);
 			continue;
 		}
 
-		if (arg === '--') {
+		if (wholeArg === '--') {
 			result._ = result._.concat(argv.slice(i + 1));
 			break;
 		}
 
-		if (arg[0] === '-') {
-			const [originalArgName, argStr] = arg[1] === '-' ? arg.split('=', 2) : [arg, undefined];
-
-			let argName = originalArgName;
-			while (argName in aliases) {
-				argName = aliases[argName];
-			}
-
-			if (!(argName in handlers)) {
-				if (permissive) {
-					result._.push(arg);
-					continue;
-				} else {
-					const err = new Error(`Unknown or unexpected option: ${originalArgName}`);
-					err.code = 'ARG_UNKNOWN_OPTION';
-					throw err;
-				}
-			}
-
+		if (wholeArg[0] === '-') {
 			/* eslint-disable operator-linebreak */
-			const [type, isArray] = Array.isArray(handlers[argName])
-				? [handlers[argName][0], true]
-				: [handlers[argName], false];
+			const separatedArguments = (wholeArg[1] === '-' || wholeArg.length === 2)
+				? [wholeArg]
+				: wholeArg.slice(1).split('').map(a => `-${a}`);
 			/* eslint-enable operator-linebreak */
 
-			let value;
-			if (type === Boolean) {
-				value = true;
-			} else if (argStr === undefined) {
-				if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
-					const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
-					throw new Error(`Option requires argument: ${originalArgName}${extended}`);
+			for (let j = 0; j < separatedArguments.length; j++) {
+				const arg = separatedArguments[j];
+				const [originalArgName, argStr] = arg[1] === '-' ? arg.split('=', 2) : [arg, undefined];
+
+				let argName = originalArgName;
+				while (argName in aliases) {
+					argName = aliases[argName];
 				}
 
-				value = type(argv[i + 1], argName, result[argName]);
-				++i;
-			} else {
-				value = type(argStr, argName, result[argName]);
-			}
+				if (!(argName in handlers)) {
+					if (permissive) {
+						result._.push(arg);
+						continue;
+					} else {
+						const err = new Error(`Unknown or unexpected option: ${originalArgName}`);
+						err.code = 'ARG_UNKNOWN_OPTION';
+						throw err;
+					}
+				}
 
-			if (isArray) {
-				if (result[argName]) {
-					result[argName].push(value);
+				/* eslint-disable operator-linebreak */
+				const [type, isArray] = Array.isArray(handlers[argName])
+					? [handlers[argName][0], true]
+					: [handlers[argName], false];
+				/* eslint-enable operator-linebreak */
+
+				if (!(type === Boolean || type[flagSymbol]) && ((j + 1) < separatedArguments.length)) {
+					throw new TypeError(`Option requires argument (but was followed by another short argument): ${originalArgName}`);
+				}
+
+				let value;
+				if (type === Boolean) {
+					value = true;
+				} else if (type[flagSymbol]) {
+					value = type(true, argName, result[argName]);
+				} else if (argStr === undefined) {
+					if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
+						const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
+						throw new Error(`Option requires argument: ${originalArgName}${extended}`);
+					}
+
+					value = type(argv[i + 1], argName, result[argName]);
+					++i;
 				} else {
-					result[argName] = [value];
+					value = type(argStr, argName, result[argName]);
 				}
-			} else {
-				result[argName] = value;
+
+				if (isArray) {
+					if (result[argName]) {
+						result[argName].push(value);
+					} else {
+						result[argName] = [value];
+					}
+				} else {
+					result[argName] = value;
+				}
 			}
 		} else {
-			result._.push(arg);
+			result._.push(wholeArg);
 		}
 	}
 
 	return result;
 }
+
+arg.flag = fn => {
+	fn[flagSymbol] = true;
+	return fn;
+};
+
+// Utility types
+arg.COUNT = arg.flag((v, name, existingCount) => (existingCount || 0) + 1);
 
 module.exports = arg;
