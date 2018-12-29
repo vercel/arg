@@ -26,7 +26,7 @@ declare namespace arg {
 	export interface Options {
 		argv?: string[];
 		permissive?: boolean;
-		stopEarly?: boolean;
+		stopAtPositional?: boolean;
 	}
 }
 

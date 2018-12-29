@@ -309,7 +309,7 @@ test('should stop parsing early with positional argument', () => {
 		'-d': Boolean
 	}, {
 		argv,
-		stopEarly: true
+		stopAtPositional: true
 	});
 
 	expect(result).to.deep.equal({
@@ -325,7 +325,7 @@ test('should stop parsing early with permissive', () => {
 		'-d': arg.COUNT
 	}, {
 		argv,
-		stopEarly: true,
+		stopAtPositional: true,
 		permissive: true
 	});
 

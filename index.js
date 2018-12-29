@@ -1,6 +1,6 @@
 const flagSymbol = Symbol('arg flag');
 
-function arg(opts, {argv, permissive = false, stopEarly = false} = {}) {
+function arg(opts, {argv, permissive = false, stopAtPositional = false} = {}) {
 	if (!opts) {
 		throw new Error('Argument specification object is required');
 	}
@@ -42,7 +42,7 @@ function arg(opts, {argv, permissive = false, stopEarly = false} = {}) {
 	for (let i = 0, len = argv.length; i < len; i++) {
 		const wholeArg = argv[i];
 
-		if (stopEarly && result._.length > 0) {
+		if (stopAtPositional && result._.length > 0) {
 			result._ = result._.concat(argv.slice(i));
 			break;
 		}
