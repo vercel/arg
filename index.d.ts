@@ -4,6 +4,7 @@ declare function arg<T extends arg.Spec>(spec: T, options?: {argv?: string[], pe
 
 declare namespace arg {
 	export function flag<T>(fn: T): T & { [flagSymbol]: true };
+	export function of<T>(fn: Handler<T>): Handler<T[]>;
 
 	export const COUNT: Handler<number> & { [flagSymbol]: true };
 

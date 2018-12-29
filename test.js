@@ -301,3 +301,21 @@ test('should error if a non-flag shortarg comes before a shortarg flag in a cond
 		argv
 	})).to.throw(TypeError, 'Option requires argument (but was followed by another short argument): -s');
 });
+
+test('should parse `--` into result when defined', () => {
+	const argv = ['--kill', '**/*', '--', 'npm', 'start'];
+
+	const result = arg({
+		'--': [String],
+		'--kill': Boolean,
+		'-k': '--kill'
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: ['**/*'],
+		'--': ['npm', 'start'],
+		'--kill': true
+	});
+});
