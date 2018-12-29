@@ -4,6 +4,7 @@ declare function arg<T extends arg.Spec>(spec: T, options?: {argv?: string[], pe
 
 declare namespace arg {
 	export function flag<T>(fn: T): T & { [flagSymbol]: true };
+	export function of<T>(fn: Handler<T>): Handler<T[]>;
 
 	export const COUNT: Handler<number> & { [flagSymbol]: true };
 
@@ -14,9 +15,7 @@ declare namespace arg {
 	}
 
 	export type Result<T extends Spec> = { _: string[] } & {
-		[K in keyof T]?: T[K] extends string
-			? never
-			: T[K] extends Handler
+		[K in keyof T]?: T[K] extends Handler
 			? ReturnType<T[K]>
 			: T[K] extends [Handler]
 			? Array<ReturnType<T[K][0]>>
