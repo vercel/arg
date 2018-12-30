@@ -13,6 +13,10 @@ function arg(opts, {argv, permissive = false} = {}) {
 	const handlers = {};
 
 	for (const key of Object.keys(opts)) {
+		if (!key) {
+			throw new TypeError('Argument key cannot be an empty string');
+		}
+
 		if (key[0] !== '-') {
 			throw new TypeError(`Argument key must start with '-' but found: '${key}'`);
 		}

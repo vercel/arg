@@ -199,6 +199,14 @@ test('ensure that all argument properties start with a hyphen', () => {
 	).to.throw(TypeError, 'Argument key must start with \'-\' but found: \'bar\'');
 });
 
+test('ensure argument property is not an empty string', () => {
+	expect(() =>
+		arg({
+			'': Number
+		})
+	).to.throw(TypeError, 'Argument key cannot be an empty string');
+});
+
 test('types with the Flag symbol should be passed true instead of an argument', () => {
 	const argv = ['--mcgee', '--foo', 'bar', '--baz', '10', 'qix'];
 
