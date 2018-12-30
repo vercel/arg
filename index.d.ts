@@ -1,6 +1,6 @@
 declare const flagSymbol: unique symbol;
 
-declare function arg<T extends arg.Spec>(spec: T, options?: {argv?: string[], permissive?: boolean}): arg.Result<T>;
+declare function arg<T extends arg.Spec>(spec: T, options?: arg.Options): arg.Result<T>;
 
 declare namespace arg {
 	export function flag<T>(fn: T): T & { [flagSymbol]: true };
@@ -22,6 +22,12 @@ declare namespace arg {
 			? Array<ReturnType<T[K][0]>>
 			: never
 	};
+
+	export interface Options {
+		argv?: string[];
+		permissive?: boolean;
+		stopAtPositional?: boolean;
+	}
 }
 
 export = arg;

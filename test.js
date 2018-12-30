@@ -309,3 +309,36 @@ test('should error if a non-flag shortarg comes before a shortarg flag in a cond
 		argv
 	})).to.throw(TypeError, 'Option requires argument (but was followed by another short argument): -s');
 });
+
+test('should stop parsing early with positional argument', () => {
+	const argv = ['-d', 'script', '--foo', 'bar'];
+
+	const result = arg({
+		'-d': Boolean
+	}, {
+		argv,
+		stopAtPositional: true
+	});
+
+	expect(result).to.deep.equal({
+		_: ['script', '--foo', 'bar'],
+		'-d': true
+	});
+});
+
+test('should stop parsing early with permissive', () => {
+	const argv = ['-dvd', '--foo', 'bar'];
+
+	const result = arg({
+		'-d': arg.COUNT
+	}, {
+		argv,
+		stopAtPositional: true,
+		permissive: true
+	});
+
+	expect(result).to.deep.equal({
+		_: ['-v', '--foo', 'bar'],
+		'-d': 2
+	});
+});

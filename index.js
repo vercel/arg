@@ -1,6 +1,6 @@
 const flagSymbol = Symbol('arg flag');
 
-function arg(opts, {argv, permissive = false} = {}) {
+function arg(opts, {argv, permissive = false, stopAtPositional = false} = {}) {
 	if (!opts) {
 		throw new Error('Argument specification object is required');
 	}
@@ -46,9 +46,9 @@ function arg(opts, {argv, permissive = false} = {}) {
 	for (let i = 0, len = argv.length; i < len; i++) {
 		const wholeArg = argv[i];
 
-		if (wholeArg.length < 2) {
-			result._.push(wholeArg);
-			continue;
+		if (stopAtPositional && result._.length > 0) {
+			result._ = result._.concat(argv.slice(i));
+			break;
 		}
 
 		if (wholeArg === '--') {
@@ -56,7 +56,7 @@ function arg(opts, {argv, permissive = false} = {}) {
 			break;
 		}
 
-		if (wholeArg[0] === '-') {
+		if (wholeArg.length > 1 && wholeArg[0] === '-') {
 			/* eslint-disable operator-linebreak */
 			const separatedArguments = (wholeArg[1] === '-' || wholeArg.length === 2)
 				? [wholeArg]
