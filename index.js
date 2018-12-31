@@ -31,7 +31,6 @@ function arg(opts, {argv, permissive = false} = {}) {
 
 		if (Array.isArray(type) && type.length === 1 && typeof type[0] === 'function') {
 			const [fn] = type;
-
 			type = arg.of(fn);
 			isFlag = fn === Boolean || fn[flagSymbol] === true;
 		} else if (typeof type === 'function') {
