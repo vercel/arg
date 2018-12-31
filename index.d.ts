@@ -27,6 +27,7 @@ declare namespace arg {
 		argv?: string[];
 		permissive?: boolean;
 		stopAtPositional?: boolean;
+		literalDashes?: boolean;
 	}
 }
 

@@ -1,6 +1,6 @@
 const flagSymbol = Symbol('arg flag');
 
-function arg(opts, {argv, permissive = false, stopAtPositional = false} = {}) {
+function arg(opts, {argv, permissive = false, stopAtPositional = false, literalDashes = false} = {}) {
 	if (!opts) {
 		throw new Error('Argument specification object is required');
 	}
@@ -52,8 +52,13 @@ function arg(opts, {argv, permissive = false, stopAtPositional = false} = {}) {
 		}
 
 		if (wholeArg === '--') {
-			result._ = result._.concat(argv.slice(i + 1));
-			break;
+			if (literalDashes) {
+				result._.push('--');
+				continue;
+			} else {
+				result._ = result._.concat(argv.slice(i + 1));
+				break;
+			}
 		}
 
 		if (wholeArg.length > 1 && wholeArg[0] === '-') {

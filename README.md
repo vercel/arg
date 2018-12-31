@@ -217,7 +217,71 @@ const args = {
 }
 ```
 
-#### Errors
+#### `stopAtPositional`
+
+When `stopAtPositional` is set to `true`, `arg` will halt parsing at the first
+positional argument.
+
+This is useful for when sub-command handling should occur, or when paired with
+`literalDashes`.
+
+For example:
+
+```javascript
+const arg = require('arg');
+
+const argv = ['--foo', 'hello', '--bar'];
+
+const args = arg(
+	{
+		'--foo': Boolean,
+		'--bar': Boolean
+	}, {
+		argv,
+		stopAtPositional: true
+	}
+);
+```
+
+results in:
+
+```javascript
+const args = {
+	_: ['hello', '--bar'],
+	'--foo': true
+};
+```
+
+#### `literalDashes`
+
+When `literalDashes` is set to `true`, `arg` will treat any occurence of
+`--` as a literal positional argument. Option parsing will continue as normal.
+
+If you want to both treat `--` as a positional _and_ stop parsing options,
+specify `stopAtPositional: true` as well.
+
+For example:
+
+```javascript
+const arg = require('arg');
+
+const argv = ['foo', '--', 'bar'];
+
+const args = arg({}, {
+	argv,
+	literalDashes: true
+});
+```
+
+results in:
+
+```javascript
+const args = {
+	_:          ['foo', '--', 'bar']
+};
+```
+
+### Errors
 
 Some errors that `arg` throws provide a `.code` property in order to aid in recovering from user error, or to
 differentiate between user error and developer error (bug).

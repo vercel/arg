@@ -342,3 +342,37 @@ test('should stop parsing early with permissive', () => {
 		'-d': 2
 	});
 });
+
+test('literalDashes: true should insert \'--\' as a positional', () => {
+	const argv = ['foo', '--', 'bar', '--test'];
+
+	const result = arg({
+		'--test': Boolean
+	}, {
+		argv,
+		literalDashes: true
+	});
+
+	expect(result).to.deep.equal({
+		_: ['foo', '--', 'bar'],
+		'--test': true
+	});
+});
+
+test('literalDashes + stopAtPositional should work as expected', () => {
+	const argv = ['--foo', '--', 'bar', '--test'];
+
+	const result = arg({
+		'--test': Boolean,
+		'--foo': Boolean
+	}, {
+		argv,
+		literalDashes: true,
+		stopAtPositional: true
+	});
+
+	expect(result).to.deep.equal({
+		_: ['--', 'bar', '--test'],
+		'--foo': true
+	});
+});
