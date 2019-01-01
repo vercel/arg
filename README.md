@@ -217,7 +217,39 @@ const args = {
 }
 ```
 
-#### Errors
+#### `stopAtPositional`
+
+When `stopAtPositional` is set to `true`, `arg` will halt parsing at the first
+positional argument.
+
+For example:
+
+```javascript
+const arg = require('arg');
+
+const argv = ['--foo', 'hello', '--bar'];
+
+const args = arg(
+	{
+		'--foo': Boolean,
+		'--bar': Boolean
+	}, {
+		argv,
+		stopAtPositional: true
+	}
+);
+```
+
+results in:
+
+```javascript
+const args = {
+	_: ['hello', '--bar'],
+	'--foo': true
+};
+```
+
+### Errors
 
 Some errors that `arg` throws provide a `.code` property in order to aid in recovering from user error, or to
 differentiate between user error and developer error (bug).
