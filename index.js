@@ -30,17 +30,27 @@ function arg(opts, {argv, permissive = false, stopAtPositional = false} = {}) {
 			continue;
 		}
 
-		const type = opts[key];
+		let type = opts[key];
+		let isFlag = false;
 
-		if (!type || (typeof type !== 'function' && !(Array.isArray(type) && type.length === 1 && typeof type[0] === 'function'))) {
-			throw new Error(`Type missing or not a function or valid array type: ${key}`);
+		if (Array.isArray(type) && type.length === 1 && typeof type[0] === 'function') {
+			const [fn] = type;
+			type = (value, name, prev = []) => {
+				prev.push(fn(value, name, prev[prev.length - 1]));
+				return prev;
+			};
+			isFlag = fn === Boolean || fn[flagSymbol] === true;
+		} else if (typeof type === 'function') {
+			isFlag = type === Boolean || type[flagSymbol] === true;
+		} else {
+			throw new TypeError(`Type missing or not a function or valid array type: ${key}`);
 		}
 
 		if (key[1] !== '-' && key.length > 2) {
 			throw new TypeError(`Short argument keys (with a single hyphen) must have only one character: ${key}`);
 		}
 
-		handlers[key] = type;
+		handlers[key] = [type, isFlag];
 	}
 
 	for (let i = 0, len = argv.length; i < len; i++) {
@@ -83,41 +93,24 @@ function arg(opts, {argv, permissive = false, stopAtPositional = false} = {}) {
 					}
 				}
 
-				/* eslint-disable operator-linebreak */
-				const [type, isArray] = Array.isArray(handlers[argName])
-					? [handlers[argName][0], true]
-					: [handlers[argName], false];
-				/* eslint-enable operator-linebreak */
+				const [type, isFlag] = handlers[argName];
 
-				if (!(type === Boolean || type[flagSymbol]) && ((j + 1) < separatedArguments.length)) {
+				if (!isFlag && ((j + 1) < separatedArguments.length)) {
 					throw new TypeError(`Option requires argument (but was followed by another short argument): ${originalArgName}`);
 				}
 
-				let value;
-				if (type === Boolean) {
-					value = true;
-				} else if (type[flagSymbol]) {
-					value = type(true, argName, result[argName]);
+				if (isFlag) {
+					result[argName] = type(true, argName, result[argName]);
 				} else if (argStr === undefined) {
 					if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
 						const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
 						throw new Error(`Option requires argument: ${originalArgName}${extended}`);
 					}
 
-					value = type(argv[i + 1], argName, result[argName]);
+					result[argName] = type(argv[i + 1], argName, result[argName]);
 					++i;
 				} else {
-					value = type(argStr, argName, result[argName]);
-				}
-
-				if (isArray) {
-					if (result[argName]) {
-						result[argName].push(value);
-					} else {
-						result[argName] = [value];
-					}
-				} else {
-					result[argName] = value;
+					result[argName] = type(argStr, argName, result[argName]);
 				}
 			}
 		} else {
