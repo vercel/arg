@@ -31,7 +31,10 @@ function arg(opts, {argv, permissive = false} = {}) {
 
 		if (Array.isArray(type) && type.length === 1 && typeof type[0] === 'function') {
 			const [fn] = type;
-			type = arg.of(fn);
+			type = (value, name, prev = []) => {
+				prev.push(fn(value, name, prev[prev.length - 1]));
+				return prev;
+			};
 			isFlag = fn === Boolean || fn[flagSymbol] === true;
 		} else if (typeof type === 'function') {
 			isFlag = type === Boolean || type[flagSymbol] === true;
@@ -117,11 +120,6 @@ function arg(opts, {argv, permissive = false} = {}) {
 arg.flag = fn => {
 	fn[flagSymbol] = true;
 	return fn;
-};
-
-arg.of = fn => (value, name, prev = []) => {
-	prev.push(fn(value, name, prev[prev.length - 1]));
-	return prev;
 };
 
 // Utility types
