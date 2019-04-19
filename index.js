@@ -1,13 +1,11 @@
 const flagSymbol = Symbol('arg flag');
 
-function arg(opts, {argv, permissive = false, stopAtPositional = false} = {}) {
+function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPositional = false} = {}) {
 	if (!opts) {
 		throw new Error('Argument specification object is required');
 	}
 
 	const result = {_: []};
-
-	argv = argv || process.argv.slice(2);
 
 	const aliases = {};
 	const handlers = {};
