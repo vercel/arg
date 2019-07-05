@@ -92,7 +92,7 @@ Type functions are passed three arguments:
 
 1. The parameter value (always a string)
 2. The parameter name (e.g. `--label`)
-3. The previous value for the destination (useful for reduce-like operatons or for supporting `-v` multiple times, etc.)
+3. The previous value for the destination (useful for reduce-like operations or for supporting `-v` multiple times, etc.)
 
 This means the built-in `String`, `Number`, and `Boolean` type constructors "just work" as type functions.
 
