@@ -73,7 +73,7 @@ function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPosi
 
 			for (let j = 0; j < separatedArguments.length; j++) {
 				const arg = separatedArguments[j];
-				const [originalArgName, argStr] = arg[1] === '-' ? arg.split('=', 2) : [arg, undefined];
+				const [originalArgName, argStr] = arg[1] === '-' ? arg.split(/=(.*)/, 2) : [arg, undefined];
 
 				let argName = originalArgName;
 				while (argName in aliases) {

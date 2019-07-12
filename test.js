@@ -43,6 +43,11 @@ test('basic string parsing (equals long-arg)', () => {
 	expect(arg({'--foo': String}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': 'hi'});
 });
 
+test('basic string parsing (equals long-arg-with-equals)', () => {
+	const argv = ['hey', '--foo=hi.hello?q=p', 'hello'];
+	expect(arg({'--foo': String}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': 'hi.hello?q=p'});
+});
+
 test('basic number parsing', () => {
 	const argv = ['hey', '--foo', '1234', 'hello'];
 	expect(arg({'--foo': Number}, {argv})).to.deep.equal({_: ['hey', 'hello'], '--foo': 1234});
