@@ -1,6 +1,6 @@
 {
   "name": "arg",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "description": "Another simple argument parser",
   "main": "index.js",
   "types": "index.d.ts",
