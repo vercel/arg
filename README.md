@@ -21,7 +21,7 @@ $ npm install arg
 `arg()` takes either 1 or 2 arguments:
 
 1. Command line specification object (see below)
-2. Parse options (_Optional_, defaults to `{permissive: false, argv: process.argv.slice(2)}`)
+2. Parse options (_Optional_, defaults to `{permissive: false, argv: process.argv.slice(2), stopAtPositional: false}`)
 
 It returns an object with any values present on the command-line (missing options are thus
 missing from the resulting object). Arg performs no validation/requirement checking - we
@@ -277,4 +277,4 @@ Unknown or unexpected option: --extraneous
 
 # License
 
-Copyright &copy; 2017-2018 by ZEIT, Inc. Released under the [MIT License](LICENSE.md).
+Copyright &copy; 2017-2019 by ZEIT, Inc. Released under the [MIT License](LICENSE.md).
