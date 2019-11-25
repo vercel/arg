@@ -121,7 +121,7 @@ const args = arg({
 console.log(args);
 /*
 {
-	_: ['foo', 'baz', 'qux', 'qix'],
+	_: ['bar', 'baz', 'qux', 'qix'],
 	'--foo': 'na na na na na na na na batman!'
 }
 */
