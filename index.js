@@ -100,7 +100,21 @@ function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPosi
 				if (isFlag) {
 					result[argName] = type(true, argName, result[argName]);
 				} else if (argStr === undefined) {
-					if (argv.length < i + 2 || (argv[i + 1].length > 1 && argv[i + 1][0] === '-')) {
+					if (
+						argv.length < i + 2 ||
+						(
+							argv[i + 1].length > 1 &&
+							(argv[i + 1][0] === '-') &&
+							!(
+								argv[i + 1].match(/^-?\d*(\.(?=\d))?\d*$/) &&
+								(
+									type === Number ||
+									// eslint-disable-next-line no-undef
+									(typeof BigInt !== 'undefined' && type === BigInt)
+								)
+							)
+						)
+					) {
 						const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
 						throw new Error(`Option requires argument: ${originalArgName}${extended}`);
 					}

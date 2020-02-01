@@ -347,3 +347,53 @@ test('should stop parsing early with permissive', () => {
 		'-d': 2
 	});
 });
+
+test('should parse negative numbers (GNU equals form)', () => {
+	const argv = ['--int=-5'];
+
+	const result = arg({
+		'--int': Number
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: [],
+		'--int': -5
+	});
+});
+
+test('should parse negative numbers (separate argument form)', () => {
+	const argv = ['--int', '-5'];
+
+	const result = arg({
+		'--int': Number
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: [],
+		'--int': -5
+	});
+});
+
+test('should error if numeric type is followed by non-negative, non-argument', () => {
+	const argv = ['--int', '-abc'];
+
+	expect(() => arg({
+		'--int': Number
+	}, {
+		argv
+	})).to.throw(Error, 'Option requires argument: --int');
+});
+
+test('should error if negative numeric argument is passed to non-negative argument', () => {
+	const argv = ['--str', '-15'];
+
+	expect(() => arg({
+		'--str': String
+	}, {
+		argv
+	})).to.throw(Error, 'Option requires argument: --str');
+});
