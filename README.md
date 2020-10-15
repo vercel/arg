@@ -275,6 +275,20 @@ node cli.js --extraneous true
 Unknown or unexpected option: --extraneous
 ```
 
+# FAQ
+
+A few questions and answers that have been asked before:
+
+### How do I require an argument with `arg`?
+
+Do the assertion yourself, such as:
+
+```javascript
+const args = arg({ '--name': String });
+
+if (!args['--name']) throw new Error('missing required argument: --name');
+```
+
 # License
 
 Copyright &copy; 2017-2019 by ZEIT, Inc. Released under the [MIT License](LICENSE.md).
