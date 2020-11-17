@@ -1,8 +1,18 @@
 const flagSymbol = Symbol('arg flag');
 
+class ArgError extends Error {
+	constructor(msg, code) {
+		super(msg);
+		this.name = 'ArgError';
+		this.code = code;
+
+		Object.setPrototypeOf(this, ArgError.prototype);
+	}
+}
+
 function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPositional = false} = {}) {
 	if (!opts) {
-		throw new Error('Argument specification object is required');
+		throw new ArgError('argument specification object is required', 'ARG_CONFIG_NO_SPEC');
 	}
 
 	const result = {_: []};
@@ -12,15 +22,15 @@ function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPosi
 
 	for (const key of Object.keys(opts)) {
 		if (!key) {
-			throw new TypeError('Argument key cannot be an empty string');
+			throw new ArgError('argument key cannot be an empty string', 'ARG_CONFIG_EMPTY_KEY');
 		}
 
 		if (key[0] !== '-') {
-			throw new TypeError(`Argument key must start with '-' but found: '${key}'`);
+			throw new ArgError(`argument key must start with '-' but found: '${key}'`, 'ARG_CONFIG_NONOPT_KEY');
 		}
 
 		if (key.length === 1) {
-			throw new TypeError(`Argument key must have a name; singular '-' keys are not allowed: ${key}`);
+			throw new ArgError(`argument key must have a name; singular '-' keys are not allowed: ${key}`, 'ARG_CONFIG_NONAME_KEY');
 		}
 
 		if (typeof opts[key] === 'string') {
@@ -41,11 +51,11 @@ function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPosi
 		} else if (typeof type === 'function') {
 			isFlag = type === Boolean || type[flagSymbol] === true;
 		} else {
-			throw new TypeError(`Type missing or not a function or valid array type: ${key}`);
+			throw new ArgError(`type missing or not a function or valid array type: ${key}`, 'ARG_CONFIG_VAD_TYPE');
 		}
 
 		if (key[1] !== '-' && key.length > 2) {
-			throw new TypeError(`Short argument keys (with a single hyphen) must have only one character: ${key}`);
+			throw new ArgError(`short argument keys (with a single hyphen) must have only one character: ${key}`, 'ARG_CONFIG_SHORTOPT_TOOLONG');
 		}
 
 		handlers[key] = [type, isFlag];
@@ -85,16 +95,14 @@ function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPosi
 						result._.push(arg);
 						continue;
 					} else {
-						const err = new Error(`Unknown or unexpected option: ${originalArgName}`);
-						err.code = 'ARG_UNKNOWN_OPTION';
-						throw err;
+						throw new ArgError(`unknown or unexpected option: ${originalArgName}`, 'ARG_UNKNOWN_OPTION');
 					}
 				}
 
 				const [type, isFlag] = handlers[argName];
 
 				if (!isFlag && ((j + 1) < separatedArguments.length)) {
-					throw new TypeError(`Option requires argument (but was followed by another short argument): ${originalArgName}`);
+					throw new ArgError(`option requires argument (but was followed by another short argument): ${originalArgName}`, 'ARG_MISSING_REQUIRED_SHORTARG');
 				}
 
 				if (isFlag) {
@@ -116,7 +124,7 @@ function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPosi
 						)
 					) {
 						const extended = originalArgName === argName ? '' : ` (alias for ${argName})`;
-						throw new Error(`Option requires argument: ${originalArgName}${extended}`);
+						throw new ArgError(`option requires argument: ${originalArgName}${extended}`, 'ARG_MISSING_REQUIRED_LONGARG');
 					}
 
 					result[argName] = type(argv[i + 1], argName, result[argName]);
@@ -140,5 +148,8 @@ arg.flag = fn => {
 
 // Utility types
 arg.COUNT = arg.flag((v, name, existingCount) => (existingCount || 0) + 1);
+
+// Expose error class
+arg.ArgError = ArgError;
 
 module.exports = arg;

@@ -9,6 +9,12 @@ declare namespace arg {
 
 	export type Handler <T = any> = (value: string, name: string, previousValue?: T) => T;
 
+	export class ArgError extends Error {
+		constructor(message: string, code: string);
+
+		code: string;
+	}
+
 	export interface Spec {
 		[key: string]: string | Handler | [Handler];
 	}

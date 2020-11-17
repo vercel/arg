@@ -25,7 +25,7 @@ test('basic parses arguments from process.argv', () => {
 });
 
 test('arg with no arguments', () => {
-	expect(() => arg()).to.throw('Argument specification object is required');
+	expect(() => arg()).to.throw(arg.ArgError, 'argument specification object is required');
 });
 
 test('basic extra arguments parsing', () => {
@@ -112,44 +112,44 @@ test('double-dash parsing', () => {
 
 test('error: invalid option', () => {
 	const argv = ['--foo', '1234', '--bar', '8765'];
-	expect(() => arg({'--foo': Number}, {argv})).to.throw('Unknown or unexpected option: --bar');
+	expect(() => arg({'--foo': Number}, {argv})).to.throw(arg.ArgError, 'unknown or unexpected option: --bar');
 });
 
 test('error: expected argument', () => {
 	const argv = ['--foo', '--bar', '1234'];
-	expect(() => arg({'--foo': String, '--bar': Number}, {argv})).to.throw('Option requires argument: --foo');
+	expect(() => arg({'--foo': String, '--bar': Number}, {argv})).to.throw(arg.ArgError, 'option requires argument: --foo');
 });
 
 test('error: expected argument (end flag)', () => {
 	const argv = ['--foo', '--bar'];
-	expect(() => arg({'--foo': Boolean, '--bar': Number}, {argv})).to.throw('Option requires argument: --bar');
+	expect(() => arg({'--foo': Boolean, '--bar': Number}, {argv})).to.throw(arg.ArgError, 'option requires argument: --bar');
 });
 
 test('error: expected argument (alias)', () => {
 	const argv = ['--foo', '--bar', '1234'];
-	expect(() => arg({'--realfoo': String, '--foo': '--realfoo', '--bar': Number}, {argv})).to.throw('Option requires argument: --foo (alias for --realfoo)');
+	expect(() => arg({'--realfoo': String, '--foo': '--realfoo', '--bar': Number}, {argv})).to.throw(arg.ArgError, 'option requires argument: --foo (alias for --realfoo)');
 });
 
 test('error: expected argument (end flag) (alias)', () => {
 	const argv = ['--foo', '--bar'];
-	expect(() => arg({'--foo': Boolean, '--realbar': Number, '--bar': '--realbar'}, {argv})).to.throw('Option requires argument: --bar (alias for --realbar)');
+	expect(() => arg({'--foo': Boolean, '--realbar': Number, '--bar': '--realbar'}, {argv})).to.throw(arg.ArgError, 'option requires argument: --bar (alias for --realbar)');
 });
 
 test('error: non-function type', () => {
 	const argv = [];
-	expect(() => arg({'--foo': 10}, {argv})).to.throw('Type missing or not a function or valid array type: --foo');
-	expect(() => arg({'--foo': null}, {argv})).to.throw('Type missing or not a function or valid array type: --foo');
-	expect(() => arg({'--foo': undefined}, {argv})).to.throw('Type missing or not a function or valid array type: --foo');
+	expect(() => arg({'--foo': 10}, {argv})).to.throw(arg.ArgError, 'type missing or not a function or valid array type: --foo');
+	expect(() => arg({'--foo': null}, {argv})).to.throw(arg.ArgError, 'type missing or not a function or valid array type: --foo');
+	expect(() => arg({'--foo': undefined}, {argv})).to.throw(arg.ArgError, 'type missing or not a function or valid array type: --foo');
 });
 
 test('error: no singular - keys allowed', () => {
 	const argv = ['--foo', '--bar', '1234'];
-	expect(() => arg({'-': Boolean, '--bar': Number}, {argv})).to.throw('Argument key must have a name; singular \'-\' keys are not allowed: -');
+	expect(() => arg({'-': Boolean, '--bar': Number}, {argv})).to.throw(arg.ArgError, 'argument key must have a name; singular \'-\' keys are not allowed: -');
 });
 
 test('error: no multi character short arguments', () => {
 	const argv = ['--foo', '--bar', '1234'];
-	expect(() => arg({'-abc': Boolean, '--bar': Number}, {argv})).to.throw('Short argument keys (with a single hyphen) must have only one character: -abc');
+	expect(() => arg({'-abc': Boolean, '--bar': Number}, {argv})).to.throw(arg.ArgError, 'short argument keys (with a single hyphen) must have only one character: -abc');
 });
 
 test('permissive mode allows unknown args', () => {
@@ -201,7 +201,7 @@ test('ensure that all argument properties start with a hyphen', () => {
 			bar: String,
 			'--baz': Boolean
 		})
-	).to.throw(TypeError, 'Argument key must start with \'-\' but found: \'bar\'');
+	).to.throw(arg.ArgError, 'argument key must start with \'-\' but found: \'bar\'');
 });
 
 test('ensure argument property is not an empty string', () => {
@@ -209,7 +209,7 @@ test('ensure argument property is not an empty string', () => {
 		arg({
 			'': Number
 		})
-	).to.throw(TypeError, 'Argument key cannot be an empty string');
+	).to.throw(arg.ArgError, 'argument key cannot be an empty string');
 });
 
 test('types with the Flag symbol should be passed true instead of an argument', () => {
@@ -312,7 +312,7 @@ test('should error if a non-flag shortarg comes before a shortarg flag in a cond
 		'-s': String
 	}, {
 		argv
-	})).to.throw(TypeError, 'Option requires argument (but was followed by another short argument): -s');
+	})).to.throw(arg.ArgError, 'option requires argument (but was followed by another short argument): -s');
 });
 
 test('should stop parsing early with positional argument', () => {
@@ -385,7 +385,7 @@ test('should error if numeric type is followed by non-negative, non-argument', (
 		'--int': Number
 	}, {
 		argv
-	})).to.throw(Error, 'Option requires argument: --int');
+	})).to.throw(arg.ArgError, 'option requires argument: --int');
 });
 
 test('should error if negative numeric argument is passed to non-negative argument', () => {
@@ -395,5 +395,5 @@ test('should error if negative numeric argument is passed to non-negative argume
 		'--str': String
 	}, {
 		argv
-	})).to.throw(Error, 'Option requires argument: --str');
+	})).to.throw(arg.ArgError, 'option requires argument: --str');
 });
