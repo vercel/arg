@@ -1,6 +1,6 @@
 # Arg [![CircleCI](https://circleci.com/gh/zeit/arg.svg?style=svg)](https://circleci.com/gh/zeit/arg)
 
-`arg` is yet another command line option parser.
+`arg` is an unopinionated, no-frills CLI argument parser.
 
 ## Installation
 
