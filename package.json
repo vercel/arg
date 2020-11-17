@@ -4,8 +4,8 @@
   "description": "Unopinionated, no-frills CLI argument parser",
   "main": "index.js",
   "types": "index.d.ts",
-  "repository": "zeit/arg",
-  "author": "Josh Junon <junon@zeit.co>",
+  "repository": "vercel/arg",
+  "author": "Josh Junon <junon@wavetilt.com>",
   "license": "MIT",
   "files": [
     "index.js",

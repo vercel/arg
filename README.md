@@ -1,4 +1,4 @@
-# Arg [![CircleCI](https://circleci.com/gh/zeit/arg.svg?style=svg)](https://circleci.com/gh/zeit/arg)
+# Arg [![CircleCI](https://circleci.com/gh/vercel/arg.svg?style=svg)](https://circleci.com/gh/vercel/arg)
 
 `arg` is an unopinionated, no-frills CLI argument parser.
 
@@ -291,4 +291,7 @@ if (!args['--name']) throw new Error('missing required argument: --name');
 
 # License
 
-Copyright &copy; 2017-2019 by ZEIT, Inc. Released under the [MIT License](LICENSE.md).
+Copyright &copy; 2017-2019 by ZEIT, Inc.
+Copyright &copy; 2020 by Vercel, Inc.
+
+Released under the [MIT License](LICENSE.md).
