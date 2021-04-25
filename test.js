@@ -363,6 +363,51 @@ test('should parse negative numbers (GNU equals form)', () => {
 	});
 });
 
+test('should parse long options (GNU equals form)', () => {
+	const argv = ['--option=value'];
+
+	const result = arg({
+		'--option': String
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: [],
+		'--option': 'value'
+	});
+});
+
+test('should parse short options (GNU equals form)', () => {
+	const argv = ['-O=value'];
+
+	const result = arg({
+		'-O': String
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: [],
+		'-O': 'value'
+	});
+});
+
+test('should parse negative numbers in short options options (GNU equals form)', () => {
+	const argv = ['-I=-15'];
+
+	const result = arg({
+		'-I': Number
+	}, {
+		argv
+	});
+
+	expect(result).to.deep.equal({
+		_: [],
+		'-I': -15
+	});
+});
+
 test('should parse negative numbers (separate argument form)', () => {
 	const argv = ['--int', '-5'];
 
