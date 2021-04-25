@@ -76,14 +76,14 @@ function arg(opts, {argv = process.argv.slice(2), permissive = false, stopAtPosi
 
 		if (wholeArg.length > 1 && wholeArg[0] === '-') {
 			/* eslint-disable operator-linebreak */
-			const separatedArguments = (wholeArg[1] === '-' || wholeArg.length === 2)
+			const separatedArguments = (wholeArg[1] === '-' || /^-.=.*$/.test(wholeArg))
 				? [wholeArg]
 				: wholeArg.slice(1).split('').map(a => `-${a}`);
 			/* eslint-enable operator-linebreak */
 
 			for (let j = 0; j < separatedArguments.length; j++) {
 				const arg = separatedArguments[j];
-				const [originalArgName, argStr] = arg[1] === '-' ? arg.split(/=(.*)/, 2) : [arg, undefined];
+				const [originalArgName, argStr] = arg.split(/=(.*)/, 2);
 
 				let argName = originalArgName;
 				while (argName in aliases) {
