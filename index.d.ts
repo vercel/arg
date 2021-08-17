@@ -1,13 +1,20 @@
 declare const flagSymbol: unique symbol;
 
-declare function arg<T extends arg.Spec>(spec: T, options?: arg.Options): arg.Result<T>;
+declare function arg<T extends arg.Spec>(
+	spec: T,
+	options?: arg.Options
+): arg.Result<T>;
 
 declare namespace arg {
 	export function flag<T>(fn: T): T & { [flagSymbol]: true };
 
 	export const COUNT: Handler<number> & { [flagSymbol]: true };
 
-	export type Handler <T = any> = (value: string, name: string, previousValue?: T) => T;
+	export type Handler<T = any> = (
+		value: string,
+		name: string,
+		previousValue?: T
+	) => T;
 
 	export class ArgError extends Error {
 		constructor(message: string, code: string);
@@ -24,7 +31,7 @@ declare namespace arg {
 			? ReturnType<T[K]>
 			: T[K] extends [Handler]
 			? Array<ReturnType<T[K][0]>>
-			: never
+			: never;
 	};
 
 	export interface Options {

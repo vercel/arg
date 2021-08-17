@@ -1,19 +1,11 @@
-# Arg [![CircleCI](https://circleci.com/gh/vercel/arg.svg?style=svg)](https://circleci.com/gh/vercel/arg)
+# Arg
 
 `arg` is an unopinionated, no-frills CLI argument parser.
 
 ## Installation
 
-Use Yarn or NPM to install.
-
-```console
-$ yarn add arg
-```
-
-or
-
-```console
-$ npm install arg
+```bash
+npm install arg
 ```
 
 ## Usage
@@ -35,7 +27,10 @@ in which case an empty array is returned).
 const arg = require('arg');
 
 // `options` is an optional parameter
-const args = arg(spec, options = {permissive: false, argv: process.argv.slice(2)});
+const args = arg(
+	spec,
+	(options = { permissive: false, argv: process.argv.slice(2) })
+);
 ```
 
 For example:
@@ -50,18 +45,18 @@ const arg = require('arg');
 
 const args = arg({
 	// Types
-	'--help':    Boolean,
+	'--help': Boolean,
 	'--version': Boolean,
-	'--verbose': arg.COUNT,   // Counts the number of times --verbose is passed
-	'--port':    Number,      // --port <number> or --port=<number>
-	'--name':    String,      // --name <string> or --name=<string>
-	'--tag':     [String],    // --tag <string> or --tag=<string>
+	'--verbose': arg.COUNT, // Counts the number of times --verbose is passed
+	'--port': Number, // --port <number> or --port=<number>
+	'--name': String, // --name <string> or --name=<string>
+	'--tag': [String], // --tag <string> or --tag=<string>
 
 	// Aliases
-	'-v':        '--verbose',
-	'-n':        '--name',    // -n <string>; result is stored in --name
-	'--label':   '--name'     // --label <string> or --label=<string>;
-	                          //     result is stored in --name
+	'-v': '--verbose',
+	'-n': '--name', // -n <string>; result is stored in --name
+	'--label': '--name' // --label <string> or --label=<string>;
+	//     result is stored in --name
 });
 
 console.log(args);
@@ -104,19 +99,32 @@ For custom handlers that wish to behave as flags, you may pass the function thro
 ```javascript
 const arg = require('arg');
 
-const argv = ['--foo', 'bar', '-ff', 'baz', '--foo', '--foo', 'qux', '-fff', 'qix'];
+const argv = [
+	'--foo',
+	'bar',
+	'-ff',
+	'baz',
+	'--foo',
+	'--foo',
+	'qux',
+	'-fff',
+	'qix'
+];
 
 function myHandler(value, argName, previousValue) {
 	/* `value` is always `true` */
 	return 'na ' + (previousValue || 'batman!');
 }
 
-const args = arg({
-	'--foo': arg.flag(myHandler),
-	'-f': '--foo'
-}, {
-	argv
-});
+const args = arg(
+	{
+		'--foo': arg.flag(myHandler),
+		'-f': '--foo'
+	},
+	{
+		argv
+	}
+);
 
 console.log(args);
 /*
@@ -136,12 +144,15 @@ const arg = require('arg');
 
 const argv = ['-AAAA', '-BBBB'];
 
-const args = arg({
-	'-A': arg.COUNT,
-	'-B': [Boolean]
-}, {
-	argv
-});
+const args = arg(
+	{
+		'-A': arg.COUNT,
+		'-B': [Boolean]
+	},
+	{
+		argv
+	}
+);
 
 console.log(args);
 /*
@@ -168,7 +179,8 @@ For example:
 const args = arg(
 	{
 		'--foo': String
-	}, {
+	},
+	{
 		argv: ['hello', '--foo', 'world']
 	}
 );
@@ -194,13 +206,22 @@ For example:
 ```javascript
 const arg = require('arg');
 
-const argv = ['--foo', 'hello', '--qux', 'qix', '--bar', '12345', 'hello again'];
+const argv = [
+	'--foo',
+	'hello',
+	'--qux',
+	'qix',
+	'--bar',
+	'12345',
+	'hello again'
+];
 
 const args = arg(
 	{
 		'--foo': String,
 		'--bar': Number
-	}, {
+	},
+	{
 		argv,
 		permissive: true
 	}
@@ -211,10 +232,10 @@ results in:
 
 ```javascript
 const args = {
-	_:          ['--qux', 'qix', 'hello again'],
-	'--foo':    'hello',
-	'--bar':    12345
-}
+	_: ['--qux', 'qix', 'hello again'],
+	'--foo': 'hello',
+	'--bar': 12345
+};
 ```
 
 #### `stopAtPositional`
@@ -233,7 +254,8 @@ const args = arg(
 	{
 		'--foo': Boolean,
 		'--bar': Boolean
-	}, {
+	},
+	{
 		argv,
 		stopAtPositional: true
 	}
@@ -257,16 +279,17 @@ differentiate between user error and developer error (bug).
 ##### ARG_UNKNOWN_OPTION
 
 If an unknown option (not defined in the spec object) is passed, an error with code `ARG_UNKNOWN_OPTION` will be thrown:
+
 ```js
 // cli.js
 try {
-  require('arg')({ '--hi': String });
+	require('arg')({ '--hi': String });
 } catch (err) {
-  if (err.code === 'ARG_UNKNOWN_OPTION') {
-    console.log(err.message);
-  } else {
-    throw err;
-  }
+	if (err.code === 'ARG_UNKNOWN_OPTION') {
+		console.log(err.message);
+	} else {
+		throw err;
+	}
 }
 ```
 
@@ -290,8 +313,5 @@ if (!args['--name']) throw new Error('missing required argument: --name');
 ```
 
 # License
-
-Copyright &copy; 2017-2019 by ZEIT, Inc.
-Copyright &copy; 2020 by Vercel, Inc.
 
 Released under the [MIT License](LICENSE.md).
