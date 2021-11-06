@@ -10,6 +10,8 @@ declare namespace arg {
 		? `--${T}`
 		: T extends `--${infer K}`
 		? K
+		: T extends `-${infer K}`
+		? K
 		: never;
 
 	type SpecToMap<T> = T extends arg.Spec
