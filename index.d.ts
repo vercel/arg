@@ -1,11 +1,25 @@
 declare const flagSymbol: unique symbol;
 
 declare function arg<T extends arg.Spec>(
-	spec: T,
+	spec: arg.SpecToMap<T>,
 	options?: arg.Options
 ): arg.Result<T>;
 
 declare namespace arg {
+	type AddDashesToArg<T> = T extends string
+		? `--${T}`
+		: T extends `--${infer K}`
+		? K
+		: T extends `-${infer K}`
+		? K
+		: never;
+
+	type SpecToMap<T> = T extends arg.Spec
+		? {
+				[K in keyof T as AddDashesToArg<T>]: T[K];
+		  }
+		: never;
+
 	export function flag<T>(fn: T): T & { [flagSymbol]: true };
 
 	export const COUNT: Handler<number> & { [flagSymbol]: true };
