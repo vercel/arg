@@ -481,8 +481,27 @@ test('should stop parsing early with permissive', () => {
 	);
 
 	expect(result).to.deep.equal({
-		_: ['-v', '--foo', 'bar'],
-		'-d': 2
+		_: ['-dvd', '--foo', 'bar']
+	});
+});
+
+test('should not split unknown arguments with permissive', () => {
+	const argv = ['-dvd', '--foo', 'bar'];
+
+	const result = arg(
+		{
+			'-d': arg.COUNT,
+			'--foo': Boolean
+		},
+		{
+			argv,
+			permissive: true
+		}
+	);
+
+	expect(result).to.deep.equal({
+		_: ['-dvd', 'bar'],
+		'--foo': true
 	});
 });
 

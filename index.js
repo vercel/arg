@@ -104,15 +104,21 @@ function arg(
 		}
 
 		if (wholeArg.length > 1 && wholeArg[0] === '-') {
-			/* eslint-disable operator-linebreak */
-			const separatedArguments =
-				wholeArg[1] === '-' || wholeArg.length === 2
-					? [wholeArg]
-					: wholeArg
-							.slice(1)
-							.split('')
-							.map((a) => `-${a}`);
-			/* eslint-enable operator-linebreak */
+			let separatedArguments = [];
+			if (wholeArg[1] === '-' || wholeArg.length === 2) {
+				separatedArguments.push(wholeArg);
+			} else {
+				for (const char of wholeArg.slice(1)) {
+					separatedArguments.push(`-${char}`);
+				}
+			}
+
+			const allArgumentsExist = separatedArguments.every(
+				(flag) => flag in handlers
+			);
+			if (!allArgumentsExist && permissive) {
+				separatedArguments = [wholeArg];
+			}
 
 			for (let j = 0; j < separatedArguments.length; j++) {
 				const arg = separatedArguments[j];
