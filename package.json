@@ -15,9 +15,9 @@
     "test": "WARN_EXIT=1 jest --coverage -w 2"
   },
   "devDependencies": {
-    "chai": "^4.1.1",
-    "jest": "^27.0.6",
-    "prettier": "^2.3.2"
+    "chai": "^4.3.6",
+    "jest": "^29.2.0",
+    "prettier": "^2.7.1"
   },
   "prettier": {
     "arrowParens": "always",
