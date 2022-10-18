@@ -19,6 +19,7 @@
       "types": "./index.d.ts"
     }
   },
+  "packageManager": "pnpm@7.13.5",
   "scripts": {
     "build": "tsup index.js --format cjs,esm --clean",
     "prepublishOnly": "pnpm build",
