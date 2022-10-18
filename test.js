@@ -8,7 +8,7 @@ test('basic parses arguments from process.argv', () => {
 	const curArgs = process.argv;
 	process.argv = ['node', 'test.js', '--foo', '1337', '-B', 'hello', '--mcgee'];
 	try {
-		const args = arg({
+		const args = arg.run({
 			'--foo': Number,
 			'--bar': String,
 			'--mcgee': Boolean,
@@ -25,7 +25,7 @@ test('basic parses arguments from process.argv', () => {
 });
 
 test('arg with no arguments', () => {
-	expect(() => arg()).to.throw(
+	expect(() => arg.run()).to.throw(
 		arg.ArgError,
 		'argument specification object is required'
 	);
@@ -33,12 +33,12 @@ test('arg with no arguments', () => {
 
 test('basic extra arguments parsing', () => {
 	const argv = ['hi', 'hello', 'there', '-'];
-	expect(arg({}, { argv })).to.deep.equal({ _: argv });
+	expect(arg.run({}, { argv })).to.deep.equal({ _: argv });
 });
 
 test('basic string parsing', () => {
 	const argv = ['hey', '--foo', 'hi', 'hello'];
-	expect(arg({ '--foo': String }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': String }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': 'hi'
 	});
@@ -46,7 +46,7 @@ test('basic string parsing', () => {
 
 test('basic string parsing (equals long-arg)', () => {
 	const argv = ['hey', '--foo=hi', 'hello'];
-	expect(arg({ '--foo': String }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': String }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': 'hi'
 	});
@@ -54,7 +54,7 @@ test('basic string parsing (equals long-arg)', () => {
 
 test('basic string parsing (equals long-arg-with-equals)', () => {
 	const argv = ['hey', '--foo=hi.hello?q=p', 'hello'];
-	expect(arg({ '--foo': String }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': String }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': 'hi.hello?q=p'
 	});
@@ -62,7 +62,7 @@ test('basic string parsing (equals long-arg-with-equals)', () => {
 
 test('basic number parsing', () => {
 	const argv = ['hey', '--foo', '1234', 'hello'];
-	expect(arg({ '--foo': Number }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': Number }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': 1234
 	});
@@ -70,7 +70,7 @@ test('basic number parsing', () => {
 
 test('basic boolean parsing', () => {
 	const argv = ['hey', '--foo', '1234', 'hello'];
-	expect(arg({ '--foo': Boolean }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': Boolean }, { argv })).to.deep.equal({
 		_: ['hey', '1234', 'hello'],
 		'--foo': true
 	});
@@ -79,7 +79,7 @@ test('basic boolean parsing', () => {
 test('basic custom type parsing', () => {
 	const argv = ['hey', '--foo', '1234', 'hello'];
 	const customType = (val, name) => `:${name}:${val}:`;
-	expect(arg({ '--foo': customType }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': customType }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': ':--foo:1234:'
 	});
@@ -87,7 +87,7 @@ test('basic custom type parsing', () => {
 
 test('basic string parsing (array)', () => {
 	const argv = ['hey', '--foo', 'hi', 'hello', '--foo', 'hey'];
-	expect(arg({ '--foo': [String] }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': [String] }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': ['hi', 'hey']
 	});
@@ -95,7 +95,7 @@ test('basic string parsing (array)', () => {
 
 test('basic number parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', '5432'];
-	expect(arg({ '--foo': [Number] }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': [Number] }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': [1234, 5432]
 	});
@@ -103,7 +103,7 @@ test('basic number parsing (array)', () => {
 
 test('basic boolean parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', 'hallo'];
-	expect(arg({ '--foo': [Boolean] }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': [Boolean] }, { argv })).to.deep.equal({
 		_: ['hey', '1234', 'hello', 'hallo'],
 		'--foo': [true, true]
 	});
@@ -112,7 +112,7 @@ test('basic boolean parsing (array)', () => {
 test('basic custom type parsing (array)', () => {
 	const argv = ['hey', '--foo', '1234', 'hello', '--foo', '8911hi'];
 	const customType = (val, name) => `:${name}:${val}:`;
-	expect(arg({ '--foo': [customType] }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': [customType] }, { argv })).to.deep.equal({
 		_: ['hey', 'hello'],
 		'--foo': [':--foo:1234:', ':--foo:8911hi:']
 	});
@@ -138,7 +138,7 @@ test('basic alias parsing', () => {
 		'-B': '--bar'
 	};
 
-	expect(arg(opts, { argv })).to.deep.equal({
+	expect(arg.run(opts, { argv })).to.deep.equal({
 		_: ['hello', 'ohai'],
 		'--foo': 1234,
 		'--bar': '-',
@@ -158,7 +158,7 @@ test('double-dash parsing', () => {
 		'--foo',
 		'2468'
 	];
-	expect(arg({ '--foo': Number }, { argv })).to.deep.equal({
+	expect(arg.run({ '--foo': Number }, { argv })).to.deep.equal({
 		_: ['hi', 'there', '--foo', '2468'],
 		'--foo': 5678
 	});
@@ -166,7 +166,7 @@ test('double-dash parsing', () => {
 
 test('error: invalid option', () => {
 	const argv = ['--foo', '1234', '--bar', '8765'];
-	expect(() => arg({ '--foo': Number }, { argv })).to.throw(
+	expect(() => arg.run({ '--foo': Number }, { argv })).to.throw(
 		arg.ArgError,
 		'unknown or unexpected option: --bar'
 	);
@@ -174,24 +174,22 @@ test('error: invalid option', () => {
 
 test('error: expected argument', () => {
 	const argv = ['--foo', '--bar', '1234'];
-	expect(() => arg({ '--foo': String, '--bar': Number }, { argv })).to.throw(
-		arg.ArgError,
-		'option requires argument: --foo'
-	);
+	expect(() =>
+		arg.run({ '--foo': String, '--bar': Number }, { argv })
+	).to.throw(arg.ArgError, 'option requires argument: --foo');
 });
 
 test('error: expected argument (end flag)', () => {
 	const argv = ['--foo', '--bar'];
-	expect(() => arg({ '--foo': Boolean, '--bar': Number }, { argv })).to.throw(
-		arg.ArgError,
-		'option requires argument: --bar'
-	);
+	expect(() =>
+		arg.run({ '--foo': Boolean, '--bar': Number }, { argv })
+	).to.throw(arg.ArgError, 'option requires argument: --bar');
 });
 
 test('error: expected argument (alias)', () => {
 	const argv = ['--foo', '--bar', '1234'];
 	expect(() =>
-		arg(
+		arg.run(
 			{ '--realfoo': String, '--foo': '--realfoo', '--bar': Number },
 			{ argv }
 		)
@@ -204,7 +202,7 @@ test('error: expected argument (alias)', () => {
 test('error: expected argument (end flag) (alias)', () => {
 	const argv = ['--foo', '--bar'];
 	expect(() =>
-		arg(
+		arg.run(
 			{ '--foo': Boolean, '--realbar': Number, '--bar': '--realbar' },
 			{ argv }
 		)
@@ -216,15 +214,15 @@ test('error: expected argument (end flag) (alias)', () => {
 
 test('error: non-function type', () => {
 	const argv = [];
-	expect(() => arg({ '--foo': 10 }, { argv })).to.throw(
+	expect(() => arg.run({ '--foo': 10 }, { argv })).to.throw(
 		arg.ArgError,
 		'type missing or not a function or valid array type: --foo'
 	);
-	expect(() => arg({ '--foo': null }, { argv })).to.throw(
+	expect(() => arg.run({ '--foo': null }, { argv })).to.throw(
 		arg.ArgError,
 		'type missing or not a function or valid array type: --foo'
 	);
-	expect(() => arg({ '--foo': undefined }, { argv })).to.throw(
+	expect(() => arg.run({ '--foo': undefined }, { argv })).to.throw(
 		arg.ArgError,
 		'type missing or not a function or valid array type: --foo'
 	);
@@ -232,7 +230,7 @@ test('error: non-function type', () => {
 
 test('error: no singular - keys allowed', () => {
 	const argv = ['--foo', '--bar', '1234'];
-	expect(() => arg({ '-': Boolean, '--bar': Number }, { argv })).to.throw(
+	expect(() => arg.run({ '-': Boolean, '--bar': Number }, { argv })).to.throw(
 		arg.ArgError,
 		"argument key must have a name; singular '-' keys are not allowed: -"
 	);
@@ -240,7 +238,9 @@ test('error: no singular - keys allowed', () => {
 
 test('error: no multi character short arguments', () => {
 	const argv = ['--foo', '--bar', '1234'];
-	expect(() => arg({ '-abc': Boolean, '--bar': Number }, { argv })).to.throw(
+	expect(() =>
+		arg.run({ '-abc': Boolean, '--bar': Number }, { argv })
+	).to.throw(
 		arg.ArgError,
 		'short argument keys (with a single hyphen) must have only one character: -abc'
 	);
@@ -259,7 +259,7 @@ test('permissive mode allows unknown args', () => {
 		'2',
 		'goodbye'
 	];
-	const result = arg(
+	const result = arg.run(
 		{
 			'--real': String,
 			'--first': Number,
@@ -282,7 +282,7 @@ test('permissive mode works with no argv specified', () => {
 	const curArgs = process.argv;
 	process.argv = ['node', 'test.js', '--foo', '1337', '-B', 'hello', '--mcgee'];
 	try {
-		const result = arg(
+		const result = arg.run(
 			{
 				'--foo': Number,
 				'--mcgee': Boolean,
@@ -305,7 +305,7 @@ test('permissive mode works with no argv specified', () => {
 
 test('ensure that all argument properties start with a hyphen', () => {
 	expect(() =>
-		arg({
+		arg.run({
 			'--foo': Number,
 			bar: String,
 			'--baz': Boolean
@@ -315,7 +315,7 @@ test('ensure that all argument properties start with a hyphen', () => {
 
 test('ensure argument property is not an empty string', () => {
 	expect(() =>
-		arg({
+		arg.run({
 			'': Number
 		})
 	).to.throw(arg.ArgError, 'argument key cannot be an empty string');
@@ -324,7 +324,7 @@ test('ensure argument property is not an empty string', () => {
 test('types with the Flag symbol should be passed true instead of an argument', () => {
 	const argv = ['--mcgee', '--foo', 'bar', '--baz', '10', 'qix'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'--mcgee': Boolean,
 			'--foo': arg.flag(() => 1337),
@@ -346,7 +346,7 @@ test('types with the Flag symbol should be passed true instead of an argument', 
 test('COUNT should count the number of times a flag has been passed', () => {
 	const argv = ['--verbose', '-v', '--verbose', 'foo', '-vvvv', '-vv'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'--verbose': arg.COUNT,
 			'-v': '--verbose'
@@ -365,7 +365,7 @@ test('COUNT should count the number of times a flag has been passed', () => {
 test('should parse combined shortarg flags', () => {
 	const argv = ['-vv', '-sd', 'foo', '-vdv'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'-v': [Boolean],
 			'-s': Boolean,
@@ -387,7 +387,7 @@ test('should parse combined shortarg flags', () => {
 test('should parse combined shortarg alias flags', () => {
 	const argv = ['-vv', '--verbose', '-dvd', 'foo', '--dee', '-vdv'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'--verbose': [Boolean],
 			'-v': '--verbose',
@@ -409,7 +409,7 @@ test('should parse combined shortarg alias flags', () => {
 test('should allow a non-flag shortarg to suffix a string of shortarg flags', () => {
 	const argv = ['-vvLo', 'foo'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'-v': arg.COUNT,
 			'-L': Boolean,
@@ -432,7 +432,7 @@ test('should error if a non-flag shortarg comes before a shortarg flag in a cond
 	const argv = ['-vsv', 'foo'];
 
 	expect(() =>
-		arg(
+		arg.run(
 			{
 				'-v': arg.COUNT,
 				'-s': String
@@ -450,7 +450,7 @@ test('should error if a non-flag shortarg comes before a shortarg flag in a cond
 test('should stop parsing early with positional argument', () => {
 	const argv = ['-d', 'script', '--foo', 'bar'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'-d': Boolean
 		},
@@ -469,7 +469,7 @@ test('should stop parsing early with positional argument', () => {
 test('should stop parsing early with permissive', () => {
 	const argv = ['-dvd', '--foo', 'bar'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'-d': arg.COUNT
 		},
@@ -489,7 +489,7 @@ test('should stop parsing early with permissive', () => {
 test('should parse negative numbers (GNU equals form)', () => {
 	const argv = ['--int=-5'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'--int': Number
 		},
@@ -507,7 +507,7 @@ test('should parse negative numbers (GNU equals form)', () => {
 test('should parse negative numbers (separate argument form)', () => {
 	const argv = ['--int', '-5'];
 
-	const result = arg(
+	const result = arg.run(
 		{
 			'--int': Number
 		},
@@ -526,7 +526,7 @@ test('should error if numeric type is followed by non-negative, non-argument', (
 	const argv = ['--int', '-abc'];
 
 	expect(() =>
-		arg(
+		arg.run(
 			{
 				'--int': Number
 			},
@@ -541,7 +541,7 @@ test('should error if negative numeric argument is passed to non-negative argume
 	const argv = ['--str', '-15'];
 
 	expect(() =>
-		arg(
+		arg.run(
 			{
 				'--str': String
 			},

@@ -2,22 +2,35 @@
   "name": "arg",
   "version": "5.0.2",
   "description": "Unopinionated, no-frills CLI argument parser",
-  "main": "index.js",
-  "types": "index.d.ts",
   "repository": "vercel/arg",
   "author": "Josh Junon <junon@wavetilt.com>",
   "license": "MIT",
   "files": [
-    "index.js",
+    "dist",
     "index.d.ts"
   ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./index.d.ts"
+    }
+  },
+  "packageManager": "pnpm@7.13.5",
   "scripts": {
+    "build": "tsup index.js --format cjs,esm --clean",
+    "prepublishOnly": "pnpm build",
+    "format": "prettier -w .",
     "test": "WARN_EXIT=1 jest --coverage -w 2"
   },
   "devDependencies": {
-    "chai": "^4.1.1",
-    "jest": "^27.0.6",
-    "prettier": "^2.3.2"
+    "chai": "^4.3.6",
+    "jest": "^29.2.0",
+    "prettier": "^2.7.1",
+    "tsup": "^6.2.3"
   },
   "prettier": {
     "arrowParens": "always",

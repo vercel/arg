@@ -1,6 +1,6 @@
 const flagSymbol = Symbol('arg flag');
 
-class ArgError extends Error {
+export class ArgError extends Error {
 	constructor(msg, code) {
 		super(msg);
 		this.name = 'ArgError';
@@ -10,7 +10,7 @@ class ArgError extends Error {
 	}
 }
 
-function arg(
+export function run(
 	opts,
 	{
 		argv = process.argv.slice(2),
@@ -181,15 +181,10 @@ function arg(
 	return result;
 }
 
-arg.flag = (fn) => {
+export function flag(fn) {
 	fn[flagSymbol] = true;
 	return fn;
-};
+}
 
 // Utility types
-arg.COUNT = arg.flag((v, name, existingCount) => (existingCount || 0) + 1);
-
-// Expose error class
-arg.ArgError = ArgError;
-
-module.exports = arg;
+export const COUNT = flag((v, name, existingCount) => (existingCount || 0) + 1);

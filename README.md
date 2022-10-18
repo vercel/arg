@@ -10,7 +10,7 @@ npm install arg
 
 ## Usage
 
-`arg()` takes either 1 or 2 arguments:
+`arg.run()` takes either 1 or 2 arguments:
 
 1. Command line specification object (see below)
 2. Parse options (_Optional_, defaults to `{permissive: false, argv: process.argv.slice(2), stopAtPositional: false}`)
@@ -27,10 +27,19 @@ in which case an empty array is returned).
 const arg = require('arg');
 
 // `options` is an optional parameter
-const args = arg(
+const args = arg.run(
 	spec,
 	(options = { permissive: false, argv: process.argv.slice(2) })
 );
+
+// It also supports ESM
+import * as arg from 'arg'
+
+const args = arg.run(
+	spec,
+	(options = { permissive: false, argv: process.argv.slice(2) })
+);
+
 ```
 
 For example:
@@ -43,7 +52,7 @@ $ node ./hello.js --verbose -vvv --port=1234 -n 'My name' foo bar --tag qux --ta
 // hello.js
 const arg = require('arg');
 
-const args = arg({
+const args = arg.run({
 	// Types
 	'--help': Boolean,
 	'--version': Boolean,
@@ -116,7 +125,7 @@ function myHandler(value, argName, previousValue) {
 	return 'na ' + (previousValue || 'batman!');
 }
 
-const args = arg(
+const args = arg.run(
 	{
 		'--foo': arg.flag(myHandler),
 		'-f': '--foo'
@@ -144,7 +153,7 @@ const arg = require('arg');
 
 const argv = ['-AAAA', '-BBBB'];
 
-const args = arg(
+const args = arg.run(
 	{
 		'-A': arg.COUNT,
 		'-B': [Boolean]
@@ -166,7 +175,7 @@ console.log(args);
 
 ### Options
 
-If a second parameter is specified and is an object, it specifies parsing options to modify the behavior of `arg()`.
+If a second parameter is specified and is an object, it specifies parsing options to modify the behavior of `arg.run()`.
 
 #### `argv`
 
@@ -176,7 +185,7 @@ slice them from `process.argv`) you may specify them in the `argv` option.
 For example:
 
 ```javascript
-const args = arg(
+const args = arg.run(
 	{
 		'--foo': String
 	},
@@ -216,7 +225,7 @@ const argv = [
 	'hello again'
 ];
 
-const args = arg(
+const args = arg.run(
 	{
 		'--foo': String,
 		'--bar': Number
@@ -250,7 +259,7 @@ const arg = require('arg');
 
 const argv = ['--foo', 'hello', '--bar'];
 
-const args = arg(
+const args = arg.run(
 	{
 		'--foo': Boolean,
 		'--bar': Boolean
@@ -283,7 +292,7 @@ If an unknown option (not defined in the spec object) is passed, an error with c
 ```js
 // cli.js
 try {
-	require('arg')({ '--hi': String });
+	require('arg').run({ '--hi': String });
 } catch (err) {
 	if (err.code === 'ARG_UNKNOWN_OPTION') {
 		console.log(err.message);
@@ -307,7 +316,7 @@ A few questions and answers that have been asked before:
 Do the assertion yourself, such as:
 
 ```javascript
-const args = arg({ '--name': String });
+const args = arg.run({ '--name': String });
 
 if (!args['--name']) throw new Error('missing required argument: --name');
 ```
