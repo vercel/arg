@@ -164,6 +164,33 @@ console.log(args);
 */
 ```
 
+### Special `--` argument
+
+There is a special case for the `--` argument, if encountered all subsequent arguments are appended to `arg._` and parsing for the remaining arguments is skipped.
+This special behaviour for `--` overrides the argument spec, you cannot trick it into getting parsed.
+
+For example:
+
+```javascript
+const args = arg(
+	{
+		'--foo': [String],
+	},
+	{
+		argv: ['--foo', '1', '--', '2', '--foo', '3']
+	}
+);
+```
+
+results in:
+
+```javascript
+const args = {
+	_: [ '2', '--foo', '3' ],
+	'--foo': [ '1' ],
+};
+```
+
 ### Options
 
 If a second parameter is specified and is an object, it specifies parsing options to modify the behavior of `arg()`.
