@@ -10,6 +10,16 @@ class ArgError extends Error {
 	}
 }
 
+function isNumericType(type) {
+	return (
+		type === Number ||
+		type === parseInt ||
+		type === parseFloat ||
+		// eslint-disable-next-line no-undef
+		(typeof BigInt !== 'undefined' && type === BigInt)
+	);
+}
+
 function arg(
 	opts,
 	{
@@ -59,6 +69,7 @@ function arg(
 
 		let type = opts[key];
 		let isFlag = false;
+		let isNumeric = false;
 
 		if (
 			Array.isArray(type) &&
@@ -66,12 +77,14 @@ function arg(
 			typeof type[0] === 'function'
 		) {
 			const [fn] = type;
+			isNumeric = isNumericType(fn);
 			type = (value, name, prev = []) => {
 				prev.push(fn(value, name, prev[prev.length - 1]));
 				return prev;
 			};
 			isFlag = fn === Boolean || fn[flagSymbol] === true;
 		} else if (typeof type === 'function') {
+			isNumeric = isNumericType(type);
 			isFlag = type === Boolean || type[flagSymbol] === true;
 		} else {
 			throw new ArgError(
@@ -87,7 +100,7 @@ function arg(
 			);
 		}
 
-		handlers[key] = [type, isFlag];
+		handlers[key] = [type, isFlag, isNumeric];
 	}
 
 	for (let i = 0, len = argv.length; i < len; i++) {
@@ -136,7 +149,7 @@ function arg(
 					}
 				}
 
-				const [type, isFlag] = handlers[argName];
+				const [type, isFlag, isNumeric] = handlers[argName];
 
 				if (!isFlag && j + 1 < separatedArguments.length) {
 					throw new ArgError(
@@ -152,12 +165,7 @@ function arg(
 						argv.length < i + 2 ||
 						(argv[i + 1].length > 1 &&
 							argv[i + 1][0] === '-' &&
-							!(
-								argv[i + 1].match(/^-?\d*(\.(?=\d))?\d*$/) &&
-								(type === Number ||
-									// eslint-disable-next-line no-undef
-									(typeof BigInt !== 'undefined' && type === BigInt))
-							))
+							!(argv[i + 1].match(/^-?\d*(\.(?=\d))?\d*$/) && isNumeric))
 					) {
 						const extended =
 							originalArgName === argName ? '' : ` (alias for ${argName})`;
