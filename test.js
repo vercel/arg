@@ -522,6 +522,62 @@ test('should parse negative numbers (separate argument form)', () => {
 	});
 });
 
+test('should parse negative numbers with parseInt', () => {
+	const argv = ['--int', '-100'];
+
+	const result = arg(
+		{
+			'--int': parseInt
+		},
+		{
+			argv
+		}
+	);
+
+	expect(result).to.deep.equal({
+		_: [],
+		'--int': -100
+	});
+});
+
+test('should parse negative numbers with parseFloat', () => {
+	const argv = ['--float', '-0.1'];
+
+	const result = arg(
+		{
+			'--float': parseFloat
+		},
+		{
+			argv
+		}
+	);
+
+	expect(result).to.deep.equal({
+		_: [],
+		'--float': -0.1
+	});
+});
+
+test('should parse negative numbers for numeric array types', () => {
+	const argv = ['--int', '-5', '--custom-int', '-10'];
+
+	const result = arg(
+		{
+			'--int': [Number],
+			'--custom-int': [parseInt]
+		},
+		{
+			argv
+		}
+	);
+
+	expect(result).to.deep.equal({
+		_: [],
+		'--int': [-5],
+		'--custom-int': [-10]
+	});
+});
+
 test('should error if numeric type is followed by non-negative, non-argument', () => {
 	const argv = ['--int', '-abc'];
 
