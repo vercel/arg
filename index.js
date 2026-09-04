@@ -10,6 +10,12 @@ class ArgError extends Error {
 	}
 }
 
+// Same acceptance as /^-?\d*(\.(?=\d))?\d*$/ without nested optional
+// digit runs that backtrack on long non matching input (ReDoS).
+function looksLikeNumber(str) {
+	return /^-?\d*(?:\.\d+)?$/.test(str);
+}
+
 function arg(
 	opts,
 	{
@@ -153,7 +159,7 @@ function arg(
 						(argv[i + 1].length > 1 &&
 							argv[i + 1][0] === '-' &&
 							!(
-								argv[i + 1].match(/^-?\d*(\.(?=\d))?\d*$/) &&
+								looksLikeNumber(argv[i + 1]) &&
 								(type === Number ||
 									// eslint-disable-next-line no-undef
 									(typeof BigInt !== 'undefined' && type === BigInt))
