@@ -551,3 +551,24 @@ test('should error if negative numeric argument is passed to non-negative argume
 		)
 	).to.throw(arg.ArgError, 'option requires argument: --str');
 });
+
+test('should parse negative decimal numbers as option values', () => {
+	const argv = ['--num', '-1.5'];
+
+	expect(arg({ '--num': Number }, { argv })).to.deep.equal({
+		_: [],
+		'--num': -1.5
+	});
+});
+
+test('should reject long non numeric option values without hanging', () => {
+	const argv = ['--foo', `-${'0'.repeat(20000)}-`];
+	const start = Date.now();
+
+	expect(() => arg({ '--foo': Number }, { argv })).to.throw(
+		arg.ArgError,
+		'option requires argument: --foo'
+	);
+
+	expect(Date.now() - start).to.be.below(1000);
+});
